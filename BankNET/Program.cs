@@ -4,7 +4,11 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+           // Add welcome-screen
+
+           // Add login interface. Logging out from an account should bring you back here.
+
+           // Add methods running either admin or user menus.
         }
     }
 }
