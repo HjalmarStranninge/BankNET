@@ -9,7 +9,7 @@ namespace BankNET.Utilities
     // Static class containing all functions available to the admin. 
     internal static class AdminFunctions
     {
-        // Add method for adding users.
+        // Add method for adding users. 
 
         // Add method for viewing list of all users.
     }
