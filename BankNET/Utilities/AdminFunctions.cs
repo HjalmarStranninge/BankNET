@@ -155,7 +155,7 @@ namespace BankNET.Utilities
                 .ToList();
             foreach (var ua in UserAccounts)
             {
-                Console.WriteLine($"AccountName: {ua.AccountName}\tBalance: {ua.Balance}");
+                Console.WriteLine($"AccountName: {ua.AccountName}\tAccountNumber: {ua.AccountNumber}\tBalance: {ua.Balance}");
             }
 
             //* add password confirmation to view pin and change if wanted
