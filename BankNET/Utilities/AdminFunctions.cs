@@ -1,6 +1,7 @@
 ﻿using BankNET.Data;
 using BankNET.Models;
 using BankNET.Utilities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,7 @@ namespace BankNET.Utilities
                         case "e":
                             return;
                         default:
+                            Console.Clear();
                             Console.WriteLine($"Unknown command : {command}");
                             break;
                     }
@@ -46,9 +48,24 @@ namespace BankNET.Utilities
         //Method for creating user
         private static void CreateUser(BankContext context)
         {
-            Console.WriteLine("Create user");
-            Console.WriteLine("Enter user name:");
-            string userName = Console.ReadLine();
+            string userName;
+            while (true)
+            {
+                Console.WriteLine("Create user");
+                Console.WriteLine("Enter user name:");
+                userName = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(userName))
+                {
+                    Console.Clear();
+                    Console.WriteLine("Cannot be blank");
+                }
+                else
+                {
+                    Console.WriteLine();
+                    break;
+
+                }
+            }
 
             Random random = new Random();
             string pin = random.Next(0, 10000).ToString();
@@ -74,29 +91,41 @@ namespace BankNET.Utilities
         }
         //Method for viewing list of all users.
         private static void ViewUsers(BankContext context)
-        { 
-            Console.WriteLine("Current users in system:");
+        {
             List<User> users = DbHelpers.GetAllUsers(context);
+            Console.WriteLine($"Total number of users in system: {users.Count()}");
+            Console.WriteLine("Current users in system:");
 
             foreach (User user in users)
             {
                 Console.WriteLine($"{user.UserName}");
             }
-
-            Console.WriteLine("1. View user");
-            Console.WriteLine("2. Sort A-Z"); // Is this needed?
-            Console.WriteLine("3. Sort Z-A"); // Is this needed?
-            Console.WriteLine("e. Go back");
-            string option = Console.ReadLine();
-
-            switch (option)
+            while (true)
             {
-                case "1":
-                    SelectUser(context);
-                    break;
-                case "e":
-                    return;
+                Console.WriteLine("1. View user");
+                Console.WriteLine("e. Go back");
+                string option = Console.ReadLine();
 
+                switch (option)
+                {
+                    case "1":
+                        SelectUser(context);
+                        break;
+                    case "e":
+                        Console.Clear();
+                        return;
+                    default:
+                        Console.Clear();
+                        Console.WriteLine("Current users in system:");
+                        
+                        foreach (User user in users)
+                        {
+                            Console.WriteLine($"{user.UserName}");
+                        }
+                        Console.WriteLine("Unknown command");
+                        break;
+
+                }
             }
         }
 
@@ -106,8 +135,33 @@ namespace BankNET.Utilities
             string userSelect = Console.ReadLine();
             var UserSelection = context.Users
                 .Where(u => u.UserName == userSelect)
-                .Select(u => new { u.Id, u.UserName, u.Pin })
+                .Select(u => new { u.Id, u.UserName, u.Pin, AccountCount = u.Accounts.Count(), u.Accounts })
                 .ToList();
+
+            foreach (var u in UserSelection)
+            {
+                Console.WriteLine(
+                    $"Name: {u.UserName}," +
+                    $"\tPIN: xxxx" +
+                    $"\tAccounts: {u.AccountCount}," 
+                    );
+
+                //* add placeholder (xxxx) for pin and add confirmation to view pin
+                //* Show accounts and balance and currency for specific user
+                //* Check if method for viewing accounts exists in other branches
+            }
+            var UserAccounts = context.Users
+                .Where (u => u.UserName == userSelect)
+                .Include (u=> u.Accounts)
+                .Single()
+                .Accounts
+                .ToList();
+            foreach (var ua in UserAccounts)
+            {
+                Console.WriteLine("Account");
+                //incomplete
+            }
+
         }
 
         private static void DeleteUser()
