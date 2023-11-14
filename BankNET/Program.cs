@@ -1,6 +1,11 @@
+﻿using BankNET.Utilities;
+using System.Net.Http.Headers;
 ﻿using BankNET.Data;
-using BankNET.Utilities;
 using BankNET.Models;
+using BankNET.Utilities;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
+
 
 namespace BankNET
 {
@@ -25,9 +30,12 @@ namespace BankNET
            
             // Add welcome-screen
 
-           // Add login interface. Logging out from an account should bring you back here.
+            // Add login interface. Logging out from an account should bring you back here.
 
-           // Add methods running either admin or user menus.
+            // Add methods running either admin or user menus.
+
+            // Add methods running either admin or user menus.
+
         }
     }
 }
