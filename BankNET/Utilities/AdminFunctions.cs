@@ -129,6 +129,7 @@ namespace BankNET.Utilities
             }
         }
 
+        //Selects user and shows accounts connected
         private static void SelectUser(BankContext context)
         {
             Console.WriteLine("Insert name: ");
@@ -145,10 +146,6 @@ namespace BankNET.Utilities
                     $"\tPIN: xxxx" +
                     $"\tAccounts: {u.AccountCount}," 
                     );
-
-                //* add placeholder (xxxx) for pin and add confirmation to view pin
-                //* Show accounts and balance and currency for specific user
-                //* Check if method for viewing accounts exists in other branches
             }
             var UserAccounts = context.Users
                 .Where (u => u.UserName == userSelect)
@@ -158,9 +155,10 @@ namespace BankNET.Utilities
                 .ToList();
             foreach (var ua in UserAccounts)
             {
-                Console.WriteLine("Account");
-                //incomplete
+                Console.WriteLine($"AccountName: {ua.AccountName}\tBalance: {ua.Balance}");
             }
+
+            //* add password confirmation to view pin and change if wanted
 
         }
 
