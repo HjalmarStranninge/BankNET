@@ -11,7 +11,6 @@ namespace BankNET.Models
         public int Id { get; set; }
         public string UserName { get; set; }
         public string Pin { get; set; }
-
         public virtual List<Account> Accounts { get; set;}
     }
 }

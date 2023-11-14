@@ -16,6 +16,6 @@ namespace BankNET.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Data Source=(localdb)\\.;Initial Catalog=BankNET;Integrated Security=True;Pooling=False");
-        }
+        }       
     }
 }

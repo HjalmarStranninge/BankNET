@@ -13,9 +13,8 @@ namespace BankNET.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public string AccountName { get; set; }
-
+        public string AccountNumber { get; set; }
         public decimal Balance { get; set; }
-
         public virtual User User { get; set; }
     }
 }
