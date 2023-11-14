@@ -1,8 +1,11 @@
+﻿using BankNET.Utilities;
+using System.Net.Http.Headers;
 ﻿using BankNET.Data;
 using BankNET.Models;
 using BankNET.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Metrics;
+
 
 namespace BankNET
 {
@@ -14,21 +17,12 @@ namespace BankNET
 
             // Add login interface. Logging out from an account should bring you back here.
 
+
             // Add methods running either admin or user menus.
 
-            using (var context = new BankContext())
-            {
-                var user = context.Users
-                    .Include(u => u.Accounts)
-                    .Where(u => u.Id == 1)
-                    .First();
-                    
+       
+            
+            // Add methods running either admin or user menus.
 
-
-                
-                UserFunctions.TransferInternal(user);
-            };
-
-        } 
     }
 }
