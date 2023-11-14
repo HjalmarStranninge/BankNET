@@ -53,21 +53,23 @@ namespace BankNET.Utilities
             }
             
         }
+
         // Method for user Main Menu and handling menu
         public static void UserMainMenu(BankContext context, string username)
         {
-            Console.WriteLine("1. See your accounts and balance" +
+            bool keepTryingUserMenu = true;
+            while (keepTryingUserMenu)
+            {
+                Console.Clear();
+                Console.WriteLine("1. See your accounts and balance" +
                 "\n2. Transfer between accounts" +
                 "\n3. Withdrawal" +
                 "\n4. Deposit" +
                 "\n5. Open new account" +
                 "\n6. Log out");
-            Console.Write("What would you like to do: ");
-            int userMenuChoice = int.Parse(Console.ReadLine());
-            bool keepTryingUserMenu = true;
+                Console.Write("What would you like to do: ");
+                int userMenuChoice = int.Parse(Console.ReadLine());
 
-            while (keepTryingUserMenu)
-            {
                 switch (userMenuChoice)
                 {
                     case 1:
