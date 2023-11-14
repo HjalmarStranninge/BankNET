@@ -17,12 +17,10 @@ namespace BankNET
 
             // Add login interface. Logging out from an account should bring you back here.
 
+            // Add methods running either admin or user menus.
 
             // Add methods running either admin or user menus.
 
-       
-            
-            // Add methods running either admin or user menus.
-
+        }
     }
 }

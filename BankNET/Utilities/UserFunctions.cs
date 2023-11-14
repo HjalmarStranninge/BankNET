@@ -20,105 +20,31 @@ namespace BankNET.Utilities
             {
                 // Retrive user information from database
                 User user = context.Users
-                    .Where(u => u.Name == userName)
+                    .Where(u => u.UserName == userName)
                     .Include(u => u.Accounts)
                     .Single();
                 // Dusplaying the account and balance for the user
                 foreach (var account in user.Accounts)
                 {
-                    Console.WriteLine($"{account.Name}: {account.Balance}");
+                    Console.WriteLine($"{account.AccountName}: {account.Balance}");
                 }
             }
             // Empty line for better output fromatting
             Console.WriteLine();
-
-        // Add method for viewing all user accounts with balance.
-
-
-        // Add method for moving money between users internal accounts. - h
-
-        //public static void ViewAccounts() // Which user that successfully logged in in between the ()
-        //{
-        //    Console.Clear();
-        //    Console.WriteLine($"Saldo för användare {currentUser}: {accounts[currentUser]}"); // The account
-        //    Console.WriteLine($"Saldo för användare {currentUser}: {accounts[currentUser]}"); // Second account if the user have one
-        //}
-
-
-        // Add method for moving money between users internal accounts.
-
-
-
-        // Add methods for deposit/withdraw.
-        //public static void Deposit() // which user that is logged in in between the ()
-        //{
-        //    using(BankContext context = new BankContext())
-        //    {
-        //        Console.Clear();
-        //        Console.WriteLine();  // Choose which account to deposit to.
-        //        Console.WriteLine($"How much would you like to deposit: ");
-        //        try
-        //        {
-        //            decimal deposit = decimal.Parse(Console.ReadLine());
-        //            // accessing the account choosen and the balance, ex user.SelectedAccount.Balance += deposit
-        //            context.SaveChanges();
-
-        //            Console.WriteLine("You have deposited : $" + deposit ); // the deposit to the account
-        //            Console.WriteLine("Your new balance is: $" ); // , ex user.SelectedAccount.Balance
-        //        }
-        //        catch
-        //        {
-        //            Console.WriteLine("Invalid input. PLease enter a valid amount.");
-        //        }
-        //    }
-        //}
-
-        //public static void Withdraw() // which user that is logged in between the ()
-        //{
-        //    using(BankContext context = new BankContext())
-        //    {
-        //        Console.Clear();
-        //        Console.WriteLine(); // Which account the user would like to withdraw from
-        //        Console.WriteLine("How much would you like to withdraw: ");
-        //        try
-        //        {
-        //            decimal withdrawal = decimal.Parse(Console.ReadLine());
-        //            if (withdrawal > 0 && withdrawal <= ) // The current user and the choosen account, ex user.SelectedAccount.Balance
-        //            {
-        //                //The user and account - the withdrawal ex, User.SelectedAccount.Balance -= withdrawal
-        //                context.SaveChanges();
-
-        //                Console.WriteLine("You have withdrawn: $" + withdrawal);
-        //                Console.WriteLine("Your current balance is: $" ); // ex, user.SelectedAccount.Balance
-        //            }
-        //            else
-        //            {
-        //                Console.WriteLine("Insufficient balance. ");
-        //            }
-        //        }
-        //        catch
-        //        {
-        //            Console.WriteLine("Invalid input. Please enter a valid amount.");
-        //        }
-        //    }
-        //}
-
-
         }
-            // Add method for moving money between users internal accounts.
  
         internal static void Withdraw(BankContext context, string userName)
         {
             // Retrive user info from database
             User user = context.Users
                 .Include(u => u.Accounts)
-                .Single(u => u.Name == userName);
+                .Single(u => u.UserName == userName);
 
             // Displaying the user´s accounts
             Console.WriteLine("Select the account you would like to withdraw from: ");
             foreach (var account in user.Accounts)
             {
-                Console.WriteLine($"{account.Id}. {account.Name}: {account.Balance}");
+                Console.WriteLine($"{account.Id}. {account.AccountName}: {account.Balance}");
             }
 
             Console.WriteLine("How much would you like to withdraw: ");
@@ -143,8 +69,8 @@ namespace BankNET.Utilities
                                 context.SaveChanges();
 
                                 // Displaying the withdraw details and the updated balance
-                                Console.WriteLine($"You have withdrawn {amount:C} from {selectedAccount.Name}.");
-                                Console.WriteLine($"Your new balance for {selectedAccount.Name} is: {selectedAccount.Balance:C}");
+                                Console.WriteLine($"You have withdrawn {amount:C} from {selectedAccount.AccountName}.");
+                                Console.WriteLine($"Your new balance for {selectedAccount.AccountName} is: {selectedAccount.Balance:C}");
                             }
                             catch (Exception e)
                             {
@@ -154,13 +80,11 @@ namespace BankNET.Utilities
                         }
                         else
                         {
-                            // Display message if their isn´t enough money
                             Console.WriteLine("Insufficient balance. Withdrawal canceled.");
                         }
                     }
                     else
-                    {
-                        // Invalid account number
+                    {            
                         Console.WriteLine("Invalid account number. Withdrawal canceled.");
                     }
                 }
@@ -170,8 +94,7 @@ namespace BankNET.Utilities
                 }
             }
             else
-            {
-                // Invalid amount
+            {               
                 Console.WriteLine("Invalid input for withdrawal amount. Withdrawal canceled.");
             }
         }
@@ -181,13 +104,13 @@ namespace BankNET.Utilities
             // Retrive user info from database
             User user = context.Users
             .Include(u => u.Accounts)
-            .Single(u => u.Name == userName);
+            .Single(u => u.UserName == userName);
 
             //Displaying the user´s account
             Console.WriteLine("Select the account you would like to deposit into: ");
             foreach (var account in user.Accounts)
             {
-                Console.WriteLine($"{account.Id}. {account.Name}: {account.Balance}");
+                Console.WriteLine($"{account.Id}. {account.AccountName}: {account.Balance}");
             }
 
             Console.WriteLine("How much would you like to deposit: ");
@@ -207,19 +130,19 @@ namespace BankNET.Utilities
                         try
                         {
                             context.SaveChanges();
-                            //Desplaying the deposit details and updated balance
-                            Console.WriteLine($"You have deposited {amount:C} into {selectedAccount.Name}.");
-                            Console.WriteLine($"Your new balance for {selectedAccount.Name} is: {selectedAccount.Balance:C}");
+                            // Displaying the deposit details and updated balance.
+                            Console.WriteLine($"You have deposited {amount:C} into {selectedAccount.AccountName}.");
+                            Console.WriteLine($"Your new balance for {selectedAccount.AccountName} is: {selectedAccount.Balance:C}");
                         }
                         catch (Exception e)
                         {
-                            // Handling any error that occur during saving
+                            // Handling any error that might occur during saving.
                             Console.WriteLine($"Error saving changes to the database");
                         }
                     }
                     else
                     {
-                        // Invalid account number
+                        // Invalid account number.
                         Console.WriteLine("Invalid account number. Deposit canceled.");
                     }
                 }
@@ -236,11 +159,7 @@ namespace BankNET.Utilities
 
         }
 
-        // Add method for transactions between separate users accounts. (Extra)
-
-
-
-
+     
         // Method for creating new accounts.
         public static void CreateNewAccount(BankContext context, User user)
         {
@@ -279,6 +198,7 @@ namespace BankNET.Utilities
             }
             
         }
+
 
         // Method for transferring money internally between 2 accounts belonging to the same user.
         public static void TransferInternal(User user)
@@ -346,7 +266,6 @@ namespace BankNET.Utilities
                 Thread.Sleep(1000);
             }
         }
-
     }
 }
 
