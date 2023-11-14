@@ -12,13 +12,28 @@ namespace BankNET.Utilities
     internal static class DbHelpers
     {
         // Returns a list of all users in the database.
-        public static List<User> GetAllUsers(BankContext context)
+        internal static List<User> GetAllUsers(BankContext context)
         {
             List<User> users = context.Users.ToList();
             return users;
         }
 
         // Add method for adding users.
+
+        internal static bool AddUser (BankContext context, User user)
+        {
+            context.Users.Add(user);
+            try
+            {
+                context.SaveChanges();
+            }
+            catch
+            {
+                Console.WriteLine($"Error adding user: {user}");
+                return false;
+            }
+            return true;
+        }
 
         
     }
