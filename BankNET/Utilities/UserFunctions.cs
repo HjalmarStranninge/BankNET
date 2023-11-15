@@ -17,21 +17,24 @@ namespace BankNET.Utilities
 
         internal static void ViewAccountBalance(BankContext context, string username)
         {
-            {
-                // Retrive user information from database
-                User? user = context.Users
-                    .Where(u => u.UserName == username)
-                    .Include(u => u.Accounts)
-                    .SingleOrDefault();
 
-                // Dusplaying the account and balance for the user
-                foreach (var account in user.Accounts)
-                {
-                    Console.WriteLine($"{account.AccountName}: {account.Balance}");
-                }
+            // Retrive user information from database
+            Console.Clear();
+
+            User? user = context.Users
+                .Where(u => u.UserName == username)
+                .Include(u => u.Accounts)
+                .SingleOrDefault();
+
+            // Dusplaying the account and balance for the user
+            foreach (var account in user.Accounts)
+            {
+                Console.WriteLine($"{account.AccountName}: {account.Balance}");
             }
+            
             // Empty line for better output fromatting
             Console.WriteLine();
+            Console.ReadLine();
         }
  
         internal static void Withdraw(BankContext context, string username)
