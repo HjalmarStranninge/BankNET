@@ -12,55 +12,61 @@ namespace BankNET.Utilities
     // Class containing methods that print the different menus.
     internal static class Menus
     {
-        
-        public static void Login(BankContext context)
+        internal static void Login(BankContext context)
         {
             bool tryAgainUsername = true;
             bool tryAgainPin = true;
-            int i = 0;
+            int i = 1;
             
             Console.WriteLine("Log in");
 
-            while (tryAgainUsername && i < 3)
+            while (tryAgainUsername && i <= 3)
             {
                 Console.Write("Enter username: ");
                 string username = Console.ReadLine();
 
                 bool validUsername = context.Users.Any(uN => uN.UserName.Equals(username));
-            
+
                 if (validUsername)
                 {
-                    Console.Write("Enter pin: ");
-                    string pin = Console.ReadLine();
+                    int j = 1;
 
-                    bool validPin = context.Users.Any(p => p.Pin.Equals(pin));
-                    int j = 0;
-
-                    while (tryAgainPin && j < 3)
+                    while (tryAgainPin && j <= 3)
                     {
+                        Console.Write("Enter pin: ");
+                        string pin = Console.ReadLine();
+
+                        bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pin));
                         if (validPin)
                         {
                             Console.WriteLine("Login Successful!");
                             tryAgainPin = false;
-                            
+
                             if (username == "admin") AdminMenu(context);
                             else UserMainMenu(context, username);
                         }
-                        else Console.WriteLine($"Wrong pin, you have {3 - j} tries left.");
-                        j++;
+                        else if (!validPin && j < 3) 
+                        {
+                            Console.WriteLine($"Wrong pin, you have {3 - j} tries left.");
+                            j++;
+                        }
+                        else ErrorHandling.IncorrectLogin();
+                        
                     }
 
                     tryAgainUsername = false;
                 }
-                else Console.WriteLine($"Invalid username, you have {3 - i} tries left.");
-                i++;
+                else if (!validUsername && i < 3)
+                {
+                    Console.WriteLine($"Invalid username, you have {3 - i} tries left.");
+                    i++;
+                }
+                else ErrorHandling.IncorrectLogin();
             }
-            Environment.Exit(0);
-            
         }
 
         // Method for user Main Menu and handling menu
-        public static void UserMainMenu(BankContext context, string username)
+        static void UserMainMenu(BankContext context, string username)
         {
             bool keepTryingUserMenu = true;
             while (keepTryingUserMenu)
@@ -95,6 +101,8 @@ namespace BankNET.Utilities
                     case 6:
                         Console.Clear();
                         Console.WriteLine("You are logged out.");
+                        Thread.Sleep(1500);
+                        Console.Clear();
                         keepTryingUserMenu = false;
                         break;
                     default:
@@ -103,10 +111,8 @@ namespace BankNET.Utilities
                 }
             }
         }
-        internal static void AdminMenu(BankContext context)
-        {
-            
-            
+        static void AdminMenu(BankContext context)
+        {          
                 while (true)
                 {
                     Console.WriteLine("1. View all users");
@@ -130,7 +136,6 @@ namespace BankNET.Utilities
                             break;
                     }
                 }
-            
         }
     }
 }
