@@ -103,23 +103,34 @@ namespace BankNET.Utilities
                 }
             }
         }
+        internal static void AdminMenu(BankContext context)
+        {
+            
+            
+                while (true)
+                {
+                    Console.WriteLine("1. View all users");
+                    Console.WriteLine("2. Create user");
+                    Console.WriteLine("e. Exit"); // add pressing escape button to exit?
+                    string command = Console.ReadLine();
 
-        // Add method for handling admin menu.
-        //public static void AdminMenu()
-        //{
-            //int adminMenuChoice = int.Parse(Console.ReadLine());
-            //switch (adminMenuChoice)
-            //{
-            //    case 1: 
-            //        Console.WriteLine("Add new user: ");
-            //        break;
-            //    case 2:
-            //        Console.WriteLine("You have successfully logged out.");
-            //        break;
-            //    default:
-            //        Console.WriteLine("Invalid input, try again.");
-            //        break;
-            //}
-        //}
+                    switch (command)
+                    {
+                        case "1":
+                            AdminFunctions.ViewUsers(context);
+                            break;
+                        case "2":
+                            AdminFunctions.CreateUser(context);
+                            break;
+                        case "e":
+                            return;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine($"Unknown command : {command}");
+                            break;
+                    }
+                }
+            
+        }
     }
 }

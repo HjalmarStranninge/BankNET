@@ -13,154 +13,125 @@ using System.Threading.Tasks;
 namespace BankNET.Utilities
 {
     // Static class containing all functions available to the admin. 
-    internal static class AdminFunctions
-    {
-        //Admin menu from where rest of methods will be called from
-        internal static void AdminMenu()
+        internal static class AdminFunctions
         {
-            using (BankContext context = new BankContext())
+        
+        //Method for creating user
+            internal static void CreateUser(BankContext context)
             {
+                string userName;
                 while (true)
                 {
-                    Console.WriteLine("1. View all users");
-                    Console.WriteLine("2. Create user");
-                    Console.WriteLine("e. Exit"); // add pressing escape button to exit?
-                    string command = Console.ReadLine();
-
-                    switch (command)
+                    Console.WriteLine("Create user");
+                    Console.WriteLine("Enter user name:");
+                    userName = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(userName))
                     {
-                        case "1":
-                            ViewUsers(context);
-                            break;
-                        case "2":
-                            CreateUser(context);
-                            break;
-                        case "e":
-                            return;
-                        default:
-                            Console.Clear();
-                            Console.WriteLine($"Unknown command : {command}");
-                            break;
+                        Console.Clear();
+                        Console.WriteLine("Cannot be blank");
+                    }
+                    else
+                    {
+                        Console.WriteLine();
+                        break;
+
                     }
                 }
-            }
-        }
-        //Method for creating user
-        private static void CreateUser(BankContext context)
-        {
-            string userName;
-            while (true)
-            {
-                Console.WriteLine("Create user");
-                Console.WriteLine("Enter user name:");
-                userName = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(userName))
+
+                Random random = new Random();
+                string pin = random.Next(0, 10000).ToString();
+                while (pin.Length < 4)
                 {
-                    Console.Clear();
-                    Console.WriteLine("Cannot be blank");
+                    pin = "0" + pin;
+                }
+
+                User newUser = new User()
+                {
+                    UserName = userName,
+                    Pin = pin
+                };
+                bool success = DbHelpers.AddUser(context, newUser);
+                if (success)
+                {
+                    Console.WriteLine($"Created user {userName} with pin {pin}");
                 }
                 else
                 {
-                    Console.WriteLine();
-                    break;
-
+                    Console.WriteLine($"Failed to create user with username {userName}");
                 }
             }
+            //Method for viewing list of all users.
+            internal static void ViewUsers(BankContext context)
+            {
+                List<User> users = DbHelpers.GetAllUsers(context);
+                Console.WriteLine($"Total number of users in system: {users.Count()}");
+                Console.WriteLine("Current users in system:");
 
-            Random random = new Random();
-            string pin = random.Next(0, 10000).ToString();
-            while (pin.Length < 4)
-            {
-                pin = "0" + pin;
-            }
-
-            User newUser = new User()
-            {
-                UserName = userName,
-                Pin = pin
-            };
-            bool success = DbHelpers.AddUser(context, newUser);
-            if (success)
-            {
-                Console.WriteLine($"Created user {userName} with pin {pin}");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to create user with username {userName}");
-            }
-        }
-        //Method for viewing list of all users.
-        private static void ViewUsers(BankContext context)
-        {
-            List<User> users = DbHelpers.GetAllUsers(context);
-            Console.WriteLine($"Total number of users in system: {users.Count()}");
-            Console.WriteLine("Current users in system:");
-
-            foreach (User user in users)
-            {
-                Console.WriteLine($"{user.UserName}");
-            }
-            while (true)
-            {
-                Console.WriteLine("1. View user");
-                Console.WriteLine("e. Go back");
-                string option = Console.ReadLine();
-
-                switch (option)
+                foreach (User user in users)
                 {
-                    case "1":
-                        SelectUser(context);
-                        break;
-                    case "e":
-                        Console.Clear();
-                        return;
-                    default:
-                        Console.Clear();
-                        Console.WriteLine("Current users in system:");
-                        
-                        foreach (User user in users)
-                        {
-                            Console.WriteLine($"{user.UserName}");
-                        }
-                        Console.WriteLine("Unknown command");
-                        break;
+                    Console.WriteLine($"{user.UserName}");
+                }
+                while (true)
+                {
+                    Console.WriteLine("1. View user");
+                    Console.WriteLine("e. Go back");
+                    string option = Console.ReadLine();
 
+                    switch (option)
+                    {
+                        case "1":
+                            SelectUser(context);
+                            break;
+                        case "e":
+                            Console.Clear();
+                            return;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine("Current users in system:");
+                        
+                            foreach (User user in users)
+                            {
+                                Console.WriteLine($"{user.UserName}");
+                            }
+                            Console.WriteLine("Unknown command");
+                            break;
+
+                    }
                 }
             }
-        }
 
-        //Selects user and shows accounts connected
-        private static void SelectUser(BankContext context)
-        {
-            Console.WriteLine("Insert name: ");
-            string userSelect = Console.ReadLine();
-            var UserSelection = context.Users
-                .Where(u => u.UserName == userSelect)
-                .Select(u => new { u.Id, u.UserName, u.Pin, AccountCount = u.Accounts.Count(), u.Accounts })
-                .ToList();
-
-            foreach (var u in UserSelection)
+            //Selects user and shows accounts connected
+            internal static void SelectUser(BankContext context)
             {
-                Console.WriteLine(
-                    $"Name: {u.UserName}," +
-                    $"\tPIN: xxxx" +
-                    $"\tAccounts: {u.AccountCount}," 
-                    );
-            }
-            var UserAccounts = context.Users
-                .Where (u => u.UserName == userSelect)
-                .Include (u=> u.Accounts)
-                .Single()
-                .Accounts
-                .ToList();
-            foreach (var ua in UserAccounts)
-            {
-                Console.WriteLine($"AccountName: {ua.AccountName}\tAccountNumber: {ua.AccountNumber}\tBalance: {ua.Balance}");
-            }
+                Console.WriteLine("Insert name: ");
+                string userSelect = Console.ReadLine();
+                var UserSelection = context.Users
+                    .Where(u => u.UserName == userSelect)
+                    .Select(u => new { u.Id, u.UserName, u.Pin, AccountCount = u.Accounts.Count(), u.Accounts })
+                    .ToList();
 
-            //* add password confirmation to view pin and change if wanted
+                foreach (var u in UserSelection)
+                {
+                    Console.WriteLine(
+                        $"Name: {u.UserName}," +
+                        $"\tPIN: xxxx" +
+                        $"\tAccounts: {u.AccountCount}," 
+                        );
+                }
+                var UserAccounts = context.Users
+                    .Where (u => u.UserName == userSelect)
+                    .Include (u=> u.Accounts)
+                    .Single()
+                    .Accounts
+                    .ToList();
+                foreach (var ua in UserAccounts)
+                {
+                    Console.WriteLine($"AccountName: {ua.AccountName}\tAccountNumber: {ua.AccountNumber}\tBalance: {ua.Balance}");
+                }
 
-        }
+                //* add password confirmation to view pin and change if wanted
+
+            }
 
         private static void DeleteUser()
         {

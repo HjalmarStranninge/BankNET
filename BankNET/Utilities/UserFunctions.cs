@@ -19,10 +19,11 @@ namespace BankNET.Utilities
         {
             {
                 // Retrive user information from database
-                User user = context.Users
+                User? user = context.Users
                     .Where(u => u.UserName == username)
                     .Include(u => u.Accounts)
-                    .FirstOrDefault();
+                    .SingleOrDefault();
+
                 // Dusplaying the account and balance for the user
                 foreach (var account in user.Accounts)
                 {
@@ -36,9 +37,10 @@ namespace BankNET.Utilities
         internal static void Withdraw(BankContext context, string username)
         {
             // Retrive user info from database
-            User user = context.Users
-            .Include(u => u.Accounts)
-            .FirstOrDefault(u => u.UserName == username);
+            User? user = context.Users
+                    .Where(u => u.UserName == username)
+                    .Include(u => u.Accounts)
+                    .SingleOrDefault();
 
             // Displaying the user´s accounts
             Console.WriteLine("Select the account you would like to withdraw from: ");
@@ -102,9 +104,10 @@ namespace BankNET.Utilities
         internal static void Deposit(BankContext context, string username)
         {
             // Retrive user info from database
-            User user = context.Users
-            .Include(u => u.Accounts)
-            .FirstOrDefault(u => u.UserName == username);
+            User? user = context.Users
+                    .Where(u => u.UserName == username)
+                    .Include(u => u.Accounts)
+                    .SingleOrDefault();
 
             //Displaying the user´s account
             Console.WriteLine("Select the account you would like to deposit into: ");
@@ -164,9 +167,10 @@ namespace BankNET.Utilities
         public static void CreateNewAccount(BankContext context, string username)
         {
 
-            User user = context.Users
-            .Include(u => u.Accounts)
-            .FirstOrDefault(u => u.UserName == username);
+            User? user = context.Users
+                    .Where(u => u.UserName == username)
+                    .Include(u => u.Accounts)
+                    .SingleOrDefault();
 
             Console.Clear();
             Console.Write("Enter new account name: ");
