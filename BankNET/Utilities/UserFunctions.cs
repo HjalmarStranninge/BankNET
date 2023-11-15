@@ -15,14 +15,14 @@ namespace BankNET.Utilities
     internal static class UserFunctions
     {
 
-        internal static void ViewAccountBalance(BankContext context, string userName)
+        internal static void ViewAccountBalance(BankContext context, string username)
         {
             {
                 // Retrive user information from database
                 User user = context.Users
-                    .Where(u => u.UserName == userName)
+                    .Where(u => u.UserName == username)
                     .Include(u => u.Accounts)
-                    .Single();
+                    .FirstOrDefault();
                 // Dusplaying the account and balance for the user
                 foreach (var account in user.Accounts)
                 {
@@ -33,12 +33,12 @@ namespace BankNET.Utilities
             Console.WriteLine();
         }
  
-        internal static void Withdraw(BankContext context, string userName)
+        internal static void Withdraw(BankContext context, string username)
         {
             // Retrive user info from database
             User user = context.Users
-                .Include(u => u.Accounts)
-                .Single(u => u.UserName == userName);
+            .Include(u => u.Accounts)
+            .FirstOrDefault(u => u.UserName == username);
 
             // Displaying the user´s accounts
             Console.WriteLine("Select the account you would like to withdraw from: ");
@@ -99,12 +99,12 @@ namespace BankNET.Utilities
             }
         }
 
-        internal static void Deposit(BankContext context, string userName)
+        internal static void Deposit(BankContext context, string username)
         {
             // Retrive user info from database
             User user = context.Users
             .Include(u => u.Accounts)
-            .Single(u => u.UserName == userName);
+            .FirstOrDefault(u => u.UserName == username);
 
             //Displaying the user´s account
             Console.WriteLine("Select the account you would like to deposit into: ");
@@ -161,9 +161,13 @@ namespace BankNET.Utilities
 
      
         // Method for creating new accounts.
-        public static void CreateNewAccount(BankContext context, User user)
+        public static void CreateNewAccount(BankContext context, string username)
         {
-            
+
+            User user = context.Users
+            .Include(u => u.Accounts)
+            .FirstOrDefault(u => u.UserName == username);
+
             Console.Clear();
             Console.Write("Enter new account name: ");
 
@@ -201,8 +205,13 @@ namespace BankNET.Utilities
 
 
         // Method for transferring money internally between 2 accounts belonging to the same user.
-        public static void TransferInternal(User user)
+        public static void TransferInternal(BankContext context, string username)
         {
+
+            User user = context.Users
+            .Include(u => u.Accounts)
+            .FirstOrDefault(u => u.UserName == username);
+
             Console.Clear();
             Console.Write("Transfer to which account? \n");
             string accountRecieving = Console.ReadLine();
@@ -242,11 +251,8 @@ namespace BankNET.Utilities
 
                 // Check if there is enough balance to complete the transaction and proceeds to do so if there is.
                 if(BankHelpers.IsThereBalance(sendingAccount, transferAmount))
-                {
-                    using(var context = new BankContext())
-                    {
-                        DbHelpers.TransferInternal(context, sendingAccount, recievingAccount, transferAmount);
-                    }
+                {                   
+                    DbHelpers.TransferInternal(context, sendingAccount, recievingAccount, transferAmount);                    
                 }
                 
                 // Error message if there isn't enough balance.

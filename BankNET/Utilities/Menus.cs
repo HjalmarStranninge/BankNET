@@ -15,20 +15,20 @@ namespace BankNET.Utilities
         
         public static void Login(BankContext context)
         {
-            bool tryAgainUserName = true;
+            bool tryAgainUsername = true;
             bool tryAgainPin = true;
             int i = 0;
             
             Console.WriteLine("Log in");
 
-            while (tryAgainUserName && i < 3)
+            while (tryAgainUsername && i < 3)
             {
                 Console.Write("Enter username: ");
                 string username = Console.ReadLine();
 
-                bool validUserName = context.Users.Any(uN => uN.UserName.Equals(username));
+                bool validUsername = context.Users.Any(uN => uN.UserName.Equals(username));
             
-                if (validUserName)
+                if (validUsername)
                 {
                     Console.Write("Enter pin: ");
                     string pin = Console.ReadLine();
@@ -50,7 +50,7 @@ namespace BankNET.Utilities
                         j++;
                     }
 
-                    tryAgainUserName = false;
+                    tryAgainUsername = false;
                 }
                 else Console.WriteLine($"Invalid username, you have {3 - i} tries left.");
                 i++;
@@ -81,7 +81,7 @@ namespace BankNET.Utilities
                         UserFunctions.ViewAccountBalance(context, username);
                         break;
                     case 2:
-                        UserFunctions.TransferInternal(username); //Ändra variabeltypen till User
+                        UserFunctions.TransferInternal(context, username); 
                         break;
                     case 3:
                         UserFunctions.Withdraw(context, username);
@@ -90,7 +90,7 @@ namespace BankNET.Utilities
                         UserFunctions.Deposit(context, username);
                         break;
                     case 5:
-                        UserFunctions.CreateNewAccount(context, username); // Ändra variabeltypen till User
+                        UserFunctions.CreateNewAccount(context, username); 
                         break;
                     case 6:
                         Console.Clear();
