@@ -17,10 +17,11 @@ namespace BankNET.Utilities
         {
             bool tryAgainUserName = true;
             bool tryAgainPin = true;
+            int i = 0;
             
             Console.WriteLine("Log in");
 
-            while (tryAgainUserName)
+            while (tryAgainUserName && i < 3)
             {
                 Console.Write("Enter username: ");
                 string username = Console.ReadLine();
@@ -33,24 +34,28 @@ namespace BankNET.Utilities
                     string pin = Console.ReadLine();
 
                     bool validPin = context.Users.Any(p => p.Pin.Equals(pin));
+                    int j = 0;
 
-                    while (tryAgainPin)
+                    while (tryAgainPin && j < 3)
                     {
                         if (validPin)
                         {
                             Console.WriteLine("Login Successfull!");
                             tryAgainPin = false;
                             
-                            if (username == "admin") AdminMenu();
+                            if (username == "admin") AdminFunctions.AdminMenu();
                             else UserMainMenu(context, username);
                         }
-                        else Console.WriteLine("Wrong pin, try again.");
+                        else Console.WriteLine($"Wrong pin, you have {3 - j} tries left.");
+                        j++;
                     }
 
                     tryAgainUserName = false;
                 }
-                else Console.WriteLine("Invalid username, try again.");
+                else Console.WriteLine($"Invalid username, you have {3 - i} tries left.");
+                i++;
             }
+            Environment.Exit(0);
             
         }
 
@@ -73,19 +78,19 @@ namespace BankNET.Utilities
                 switch (userMenuChoice)
                 {
                     case 1:
-                        ViewAccountBalance(context, username);
+                        UserFunctions.ViewAccountBalance(context, username);
                         break;
                     case 2:
-                        TransferInternal(context, username);
+                        UserFunctions.TransferInternal(username); //Ändra variabeltypen till User
                         break;
                     case 3:
-                        Withdraw(context, username);
+                        UserFunctions.Withdraw(context, username);
                         break;
                     case 4:
-                        Deposit(context, username);
+                        UserFunctions.Deposit(context, username);
                         break;
                     case 5:
-                        CreateNewAccount(context, username);
+                        UserFunctions.CreateNewAccount(context, username); // Ändra variabeltypen till User
                         break;
                     case 6:
                         Console.Clear();
@@ -100,8 +105,8 @@ namespace BankNET.Utilities
         }
 
         // Add method for handling admin menu.
-        public static void AdminMenu()
-        {
+        //public static void AdminMenu()
+        //{
             //int adminMenuChoice = int.Parse(Console.ReadLine());
             //switch (adminMenuChoice)
             //{
@@ -115,6 +120,6 @@ namespace BankNET.Utilities
             //        Console.WriteLine("Invalid input, try again.");
             //        break;
             //}
-        }
+        //}
     }
 }
