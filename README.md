@@ -1,6 +1,6 @@
 # BankNET
 ## Overview
-Welcome to BankNET! This project involves creating a user-friendly banking system, akin to an ATM or internet bank. It's a challenging project where well-structured code is essential to avoid confusion.
+Welcome to BankNET! This project involves creating a user-friendly banking system, like an ATM or internet bank. It's a challenging project where well-structured code is essential to avoid confusion.
 
 ## Key Features
 * User Authentication: Users log in with a user number/username and a PIN code.
