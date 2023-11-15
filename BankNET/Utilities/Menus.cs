@@ -40,10 +40,10 @@ namespace BankNET.Utilities
                     {
                         if (validPin)
                         {
-                            Console.WriteLine("Login Successfull!");
+                            Console.WriteLine("Login Successful!");
                             tryAgainPin = false;
                             
-                            if (username == "admin") AdminFunctions.AdminMenu();
+                            if (username == "admin") AdminMenu(context);
                             else UserMainMenu(context, username);
                         }
                         else Console.WriteLine($"Wrong pin, you have {3 - j} tries left.");
