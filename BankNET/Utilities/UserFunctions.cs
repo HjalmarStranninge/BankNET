@@ -28,10 +28,9 @@ namespace BankNET.Utilities
             // Displaying the account and balance for the user.
             foreach (var account in user.Accounts)
             {
-                Console.WriteLine($"{account.AccountName}: {account.Balance} SEK");
+                Console.WriteLine($"{account.AccountNumber} {account.AccountName}\nBalance: {account.Balance,2} SEK\n");
             }
-            
-            Console.Write("Press enter to continue.");
+            Console.Write("Press enter to return to menu.");
             Console.ReadLine();
         }
 
@@ -49,60 +48,70 @@ namespace BankNET.Utilities
             // Displaying the user´s accounts.
             foreach (var account in user.Accounts)
             {
-                Console.WriteLine($"{account.Id}. {account.AccountName}: {account.Balance}");
+                Console.WriteLine($"{account.Id}. {account.AccountNumber} {account.AccountName}\nBalance: {account.Balance,2} SEK\n");
             }
-            
-            Console.WriteLine("Select the account you would like to withdraw from : ");
+
+            Console.Write("Select the account you would like to withdraw from: ");
             if (int.TryParse(Console.ReadLine(), out int selectedAccountId))
             {
-                Console.WriteLine("How much would you like to withdraw: ");
-                if (decimal.TryParse(Console.ReadLine(), out decimal amount) && amount > 0)
-                {
-                    // Find the selected account.
-                    var selectedAccount = user.Accounts.SingleOrDefault(account => account.Id == selectedAccountId);
+                // Check if the selected account number exists.
+                var selectedAccount = user.Accounts.SingleOrDefault(account => account.Id == selectedAccountId);
 
-                    if (selectedAccount != null)
+                if (selectedAccount != null)
+                {
+                    Console.Write("How much would you like to withdraw: ");
+                    if (decimal.TryParse(Console.ReadLine(), out decimal amount) && amount > 0)
                     {
                         // Check if there is sufficient balance.
                         if (amount <= selectedAccount.Balance)
                         {
                             // Update the account balance with the withdrawal.
                             selectedAccount.Balance -= amount;
+                            context.SaveChanges();
 
                             try
                             {
-                                context.SaveChanges();
 
                                 // Displaying the withdraw details and the updated balance.
-                                Console.WriteLine($"You have withdrawn {amount:C} from {selectedAccount.AccountName}.");
-                                Console.WriteLine($"Your new balance for {selectedAccount.AccountName} is: {selectedAccount.Balance:C}");
+                                Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}.");
+                                Console.WriteLine($"Your new balance for {selectedAccount.AccountNumber} {selectedAccount.AccountName} is: {selectedAccount.Balance,2} SEK\n");
                                 Console.Write("Press enter to continue.");
                                 Console.ReadLine();
                             }
                             catch (Exception e)
                             {
                                 // Handling any error that might occur during saving.
-                                Console.WriteLine($"Error saving changes to the database");
+                                Console.WriteLine($"\nError saving changes to the database.");
+                                Console.Write("Returning to main menu...");
+                                Thread.Sleep(2000);
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Insufficient balance. Withdrawal canceled.");
+                            Console.WriteLine("\nInsufficient balance. Withdrawal canceled.");
+                            Console.Write("Returning to main menu...");
+                            Thread.Sleep(2000);
                         }
                     }
                     else
-                    {            
-                        Console.WriteLine("Invalid account number. Withdrawal canceled.");
+                    {
+                        Console.WriteLine("\nInvalid input for withdrawal amount. Withdrawal canceled.");
+                        Console.Write("Returning to main menu...");
+                        Thread.Sleep(2000);
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input for account number. Withdrawal canceled.");
+                    Console.WriteLine("\nInvalid account number. Withdrawal canceled.");
+                    Console.Write("Returning to main menu...");
+                    Thread.Sleep(2000);
                 }
             }
             else
-            {               
-                Console.WriteLine("Invalid input for withdrawal amount. Withdrawal canceled.");
+            {
+                Console.WriteLine("\nInvalid input for account number. Withdrawal canceled.");
+                Console.Write("Returning to main menu...");
+                Thread.Sleep(2000);
             }
         }
 
@@ -110,27 +119,28 @@ namespace BankNET.Utilities
         internal static void Deposit(BankContext context, string username)
         {
             Console.Clear();
-            // Retrive user info from database.
+            // Retrieve user info from the database.
             User? user = context.Users
-                    .Where(u => u.UserName == username)
-                    .Include(u => u.Accounts)
-                    .SingleOrDefault();
+                .Where(u => u.UserName == username)
+                .Include(u => u.Accounts)
+                .SingleOrDefault();
 
-            //Displaying the user´s account.
+            // Displaying the user's accounts.
             foreach (var account in user.Accounts)
             {
-                Console.WriteLine($"{account.Id}. {account.AccountName}: {account.Balance}");
+                Console.WriteLine($"{account.Id}. {account.AccountName}: {account.Balance,2} SEK\n");
             }
-            Console.WriteLine("Select the account you would like to deposit to: ");
+
+            Console.Write("Select the account you would like to deposit to: ");
             if (int.TryParse(Console.ReadLine(), out int selectedAccountId))
             {
-                Console.WriteLine("How much would you like to deposit: ");
-                if (decimal.TryParse(Console.ReadLine(), out decimal amount) && amount > 0)
-                {
-                    // Find the selected account.
-                    var selectedAccount = user.Accounts.SingleOrDefault(account => account.Id == selectedAccountId);
+                // Find the selected account.
+                var selectedAccount = user.Accounts.SingleOrDefault(account => account.Id == selectedAccountId);
 
-                    if (selectedAccount != null)
+                if (selectedAccount != null)
+                {
+                    Console.Write("How much would you like to deposit: ");
+                    if (decimal.TryParse(Console.ReadLine(), out decimal amount) && amount > 0)
                     {
                         // Updating the balance with the deposit.
                         selectedAccount.Balance += amount;
@@ -139,36 +149,43 @@ namespace BankNET.Utilities
                         {
                             context.SaveChanges();
                             // Displaying the deposit details and updated balance.
-                            Console.WriteLine($"You have deposited {amount:C} into {selectedAccount.AccountName}.");
-                            Console.WriteLine($"Your new balance for {selectedAccount.AccountName} is: {selectedAccount.Balance:C}");
+                            Console.WriteLine($"\nYou have deposited {amount,2} SEK into {selectedAccount.AccountName}.");
+                            Console.WriteLine($"Your new balance for {selectedAccount.AccountName} is: {selectedAccount.Balance,2} SEK\n");
                             Console.Write("Press enter to continue.");
                             Console.ReadLine();
-
                         }
                         catch (Exception e)
                         {
                             // Handling any error that might occur during saving.
-                            Console.WriteLine($"Error saving changes to the database");
+                            Console.WriteLine($"\nError saving changes to the database.");
+                            Console.Write("Returning to the main menu...");
+                            Thread.Sleep(2000);
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Invalid account number. Deposit canceled.");
+                        Console.WriteLine("\nInvalid input for deposit amount. Deposit canceled.");
+                        Console.Write("Returning to the main menu...");
+                        Thread.Sleep(2000);
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input for account number. Deposit canceled.");
+                    Console.WriteLine("\nInvalid account number. Deposit canceled.");
+                    Console.Write("Returning to the main menu...");
+                    Thread.Sleep(2000);
                 }
             }
             else
             {
-                Console.WriteLine("Invalid input for deposit amount. Deposit canceled.");
+                Console.WriteLine("\nInvalid input for account number. Deposit canceled.");
+                Console.Write("Returning to the main menu...");
+                Thread.Sleep(2000);
             }
 
         }
 
-     
+
         // Method for creating new accounts.
         public static void CreateNewAccount(BankContext context, string username)
         {
@@ -200,7 +217,7 @@ namespace BankNET.Utilities
                 Console.WriteLine($"Successfully created new account with account name: {newAccountName}\n" +
                     $"Your account number is {newAccountNumber}");
 
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
             }
 
             else
@@ -208,7 +225,7 @@ namespace BankNET.Utilities
                 Console.Clear();
                 Console.WriteLine("Account name cannot be empty");
 
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
             }
             
         }
@@ -223,10 +240,10 @@ namespace BankNET.Utilities
             .FirstOrDefault(u => u.UserName == username);
 
             Console.Clear();
-            Console.Write("Transfer to which account? \n");
+            Console.WriteLine("Transfer to which account?");
             string accountRecieving = Console.ReadLine();
 
-            Console.Write("Transfer from which account? \n");
+            Console.WriteLine("\nTransfer from which account?");
             string accountSending = Console.ReadLine();
 
             // Checks if the accounts the user wants to transfer between exist.
@@ -270,7 +287,7 @@ namespace BankNET.Utilities
                 {
                     Console.Clear();
                     Console.WriteLine("Transaction failed. Not enough funds in the account.");
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                 }
             }
 
@@ -279,7 +296,7 @@ namespace BankNET.Utilities
             {
                 Console.Clear();
                 Console.WriteLine("Account names do not match. Transaction failed.");
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
             }
         }
     }
