@@ -39,11 +39,11 @@ namespace BankNET.Utilities
         {
             Console.Clear();
 
-            // Retrive user info from database.
+            // Retrieve user info from the database.
             User? user = context.Users
-                    .Where(u => u.UserName == username)
-                    .Include(u => u.Accounts)
-                    .SingleOrDefault();
+                .Where(u => u.UserName == username)
+                .Include(u => u.Accounts)
+                .SingleOrDefault();
 
             // Displaying the user´s accounts.
             foreach (var account in user.Accounts)
@@ -52,68 +52,59 @@ namespace BankNET.Utilities
             }
 
             Console.Write("Select the account you would like to withdraw from: ");
-            if (int.TryParse(Console.ReadLine(), out int selectedAccountId))
+
+            Account selectedAccount = null;
+
+            if (!int.TryParse(Console.ReadLine(), out int selectedAccountId) ||
+                (selectedAccount = user.Accounts.SingleOrDefault(account => account.Id == selectedAccountId)) == null)
             {
-                // Check if the selected account number exists.
-                var selectedAccount = user.Accounts.SingleOrDefault(account => account.Id == selectedAccountId);
-
-                if (selectedAccount != null)
-                {
-                    Console.Write("How much would you like to withdraw: ");
-                    if (decimal.TryParse(Console.ReadLine(), out decimal amount) && amount > 0)
-                    {
-                        // Check if there is sufficient balance.
-                        if (amount <= selectedAccount.Balance)
-                        {
-                            // Update the account balance with the withdrawal.
-                            selectedAccount.Balance -= amount;
-                            context.SaveChanges();
-
-                            try
-                            {
-
-                                // Displaying the withdraw details and the updated balance.
-                                Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}.");
-                                Console.WriteLine($"Your new balance for {selectedAccount.AccountNumber} {selectedAccount.AccountName} is: {selectedAccount.Balance,2} SEK\n");
-                                Console.Write("Press enter to continue.");
-                                Console.ReadLine();
-                            }
-                            catch (Exception e)
-                            {
-                                // Handling any error that might occur during saving.
-                                Console.WriteLine($"\nError saving changes to the database.");
-                                Console.Write("Returning to main menu...");
-                                Thread.Sleep(2000);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("\nInsufficient balance. Withdrawal canceled.");
-                            Console.Write("Returning to main menu...");
-                            Thread.Sleep(2000);
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nInvalid input for withdrawal amount. Withdrawal canceled.");
-                        Console.Write("Returning to main menu...");
-                        Thread.Sleep(2000);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("\nInvalid account number. Withdrawal canceled.");
-                    Console.Write("Returning to main menu...");
-                    Thread.Sleep(2000);
-                }
+                HandleInvalidInput("Invalid input or account number. Withdrawal canceled.");
+                return;
             }
-            else
+
+            Console.Write("How much would you like to withdraw: ");
+            if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
             {
-                Console.WriteLine("\nInvalid input for account number. Withdrawal canceled.");
-                Console.Write("Returning to main menu...");
+                HandleInvalidInput("Invalid input for withdrawal amount. Withdrawal canceled.");
+                return;
+            }
+
+            // Check if there is sufficient balance.
+            if (amount > selectedAccount.Balance)
+            {
+                HandleInvalidInput("Insufficient balance. Withdrawal canceled.");
+                return;
+            }
+
+            // Update the account balance with the withdrawal.
+            selectedAccount.Balance -= amount;
+
+            try
+            {
+                context.SaveChanges();
+
+                // Displaying the withdrawal details and the updated balance.
+                Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}.");
+                Console.WriteLine($"Your new balance for {selectedAccount.AccountNumber} {selectedAccount.AccountName} is: {selectedAccount.Balance,2} SEK\n");
+                Console.Write("Press enter to continue.");
+                Console.ReadLine();
+            }
+            catch (Exception e)
+            {
+                // Handling any error that might occur during saving.
+                Console.WriteLine($"\nError saving changes to the database.");
+                Console.Write("Returning to the main menu...");
                 Thread.Sleep(2000);
             }
         }
+
+        private static void HandleInvalidInput(string message)
+        {
+            Console.WriteLine($"\n{message}");
+            Console.Write("Returning to the main menu...");
+            Thread.Sleep(2000);
+        }
+
 
         // Method for deposit money.
         internal static void Deposit(BankContext context, string username)
