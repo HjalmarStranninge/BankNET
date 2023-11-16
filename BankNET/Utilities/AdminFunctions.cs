@@ -72,7 +72,7 @@ namespace BankNET.Utilities
         }
 
         //Method for viewing list of all users.
-        internal static void ViewUsers(BankContext context, string username)
+        internal static void ViewUsers(BankContext context, string adminName)
         {
             while (true)
             {
@@ -88,13 +88,13 @@ namespace BankNET.Utilities
                 }
                 Console.WriteLine("---");
 
-                SelectUser(context, username);
+                SelectUser(context, adminName);
                 break;
             }
         }
 
         //Selects user and shows accounts connected. Leads into Admin to user submenu
-        internal static void SelectUser(BankContext context, string username)
+        internal static void SelectUser(BankContext context, string adminName)
         {
             while (true)
             {
@@ -139,7 +139,7 @@ namespace BankNET.Utilities
 
                     Console.WriteLine();
 
-                    AdminUserView(context, userSelect, username, userAccounts);
+                    AdminUserView(context, userSelect, adminName, userAccounts);
                 }
                 else if (userSelect == "e")
                 {
@@ -153,7 +153,7 @@ namespace BankNET.Utilities
             }
         }
         // admin to user submenu. Brings along selected username and admin username.
-        internal static void AdminUserView(BankContext context, string userSelect, string username, List<Account> userAccounts)
+        internal static void AdminUserView(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
             while (true)
             {
@@ -165,10 +165,10 @@ namespace BankNET.Utilities
                 switch (Console.ReadLine())
                 {
                     case "1":
-                        ShowPin(context, userSelect, username, userAccounts);
+                        ShowPin(context, userSelect, adminName, userAccounts);
                         break;
                     case "2":
-                        DeleteUser(context, userSelect, username, userAccounts);
+                        DeleteUser(context, userSelect, adminName, userAccounts);
                         return;
                     case "e":
                         return;
@@ -207,9 +207,9 @@ namespace BankNET.Utilities
             }
         }
         //method for deleting user by confirming admin pin. Will only go through if accounts are zero
-        private static void DeleteUser(BankContext context, string userSelect, string username, List<Account> userAccounts)
+        private static void DeleteUser(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
-            if (BankHelpers.SimplePinCheck(context, "Confirm user deletion with Admin Pin: ", username))
+            if (BankHelpers.SimplePinCheck(context, "Confirm user deletion with Admin Pin: ", adminName))
             {
                 if (BankHelpers.CheckAccountBalanceZero(userAccounts))
                 {
@@ -220,16 +220,16 @@ namespace BankNET.Utilities
                         bool success = DbHelpers.DeleteUser(context, userToDelete);
                         if (success)
                         {
-                            Console.WriteLine($"Deleted user {username} and any connected accounts");
+                            Console.WriteLine($"Deleted user {userToDelete.UserName} and any connected accounts");
                         }
                         else
                         {
-                            Console.WriteLine($"Failed to delete user with username {username}");
+                            Console.WriteLine($"Failed to delete user with username {userToDelete.UserName}");
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"Cannot delete user {username}. Some accounts have a remaining balance.");
+                        Console.WriteLine($"Cannot delete user {userToDelete.UserName}. Some accounts have a remaining balance.");
                     }
                 }
             }
