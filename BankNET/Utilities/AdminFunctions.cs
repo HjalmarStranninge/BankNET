@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -136,6 +137,7 @@ namespace BankNET.Utilities
                         $"\tAccounts: {u.AccountCount}," 
                         );
                 }
+
                 var UserAccounts = context.Users
                     .Where (u => u.UserName == userSelect)
                     .Include (u=> u.Accounts)
@@ -147,10 +149,10 @@ namespace BankNET.Utilities
                     Console.WriteLine($"AccountNumber: {ua.AccountNumber}\tAccountName: {ua.AccountName}\tBalance: {ua.Balance} missing currency");
                 }
             Console.WriteLine();
-            AdminUserView(context);
+            AdminUserView(context, userSelect);
         }
         
-        internal static void AdminUserView(BankContext context)
+        internal static void AdminUserView(BankContext context, string userSelect)
         {
             while (true)
             {
@@ -162,7 +164,7 @@ namespace BankNET.Utilities
                 switch (Console.ReadLine())
                 {
                     case "1":
-                        ChangePin(context);
+                        ShowPin(context, userSelect);
                         return;
                     case "2":
                         DeleteUser(context);
@@ -176,51 +178,44 @@ namespace BankNET.Utilities
             }
         }
 
-        internal static void AdminPinCheck(BankContext context, string adminuser, string pincheck)
+        internal static bool AdminPinCheck(BankContext context, string confirmation)
         {
-            Console.Write("To view User PIN, enter Admin PIN:");
-            pincheck = Console.ReadLine();
+            Console.Write(confirmation);
+            string pincheck = Console.ReadLine();
 
-            var admin = context.Users
-                .Where(u => u.UserName == "admin");
-            if ()
+            bool validPin = context.Users.Any(p => p.UserName.Equals("admin") && p.Pin.Equals(pincheck));
+            if (validPin)
             {
-                if (admin.Pin == pincheck)
+                return true;
             }
+            else
+            {
+                Console.WriteLine("wrong pin. taking you back");
+                return false;
+            }
+        }
+
+        private static void ShowPin(BankContext context, string userSelect)
+        {
+            if (AdminPinCheck(context, "Please enter Admin PIN to view user PIN"))
+            {
+                var user = context.Users
+                    .Where(u => u.UserName == userSelect)
+                    .FirstOrDefault();
+                Console.WriteLine($"PIN: {user.Pin}");
+
+            }
+
         }
         internal static void DeleteUser(BankContext context)
         {
+            if (AdminPinCheck(context, "Confirm user deletion with Admin Pin"))
+            {
 
-            Console.Write("Confirm user deletion with Admin PIN: ");
-            //while (true)
-            //{
-            //    bool tryPin = true;
-            //    string pin = Console.ReadLine();
-
-            //    bool validPin = context.Users.Any(p => p.Pin.Equals(pin));
-
-            //    while (tryPin)
-            //    {
-            //        if (validPin)
-            //        {
-            //            Console.WriteLine("Login Successful!");
-            //            tryPin = false;
-
-            //            if (username == "admin") AdminMenu(context);
-            //        }
-            //    }
-            //}
+            }
 
         }
 
-        private static void ChangePin(BankContext context)
-        {
-            
-            
-
-            AdminPinCheck(context);
-
-        }
 
         //* should we allow the function of deleting a user? OK
         //* should we allow function of reseting customer pin? OK
