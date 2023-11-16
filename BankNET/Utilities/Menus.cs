@@ -33,10 +33,31 @@ namespace BankNET.Utilities
 
                     while (tryAgainPin && j <= 3)
                     {
+                        
                         Console.Write("Enter pin: ");
-                        string pin = Console.ReadLine();
 
-                        bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pin));
+                        ConsoleKeyInfo keyInfo;
+                        string pin = "";
+                        do
+                        {
+                            keyInfo = Console.ReadKey(true); // Read a key without displaying it
+                            if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
+                            {
+                                pin += keyInfo.KeyChar;
+                                Console.Write("*"); // Display a star for each character
+                            }
+                            else
+                            {
+                                if (keyInfo.Key == ConsoleKey.Backspace && pin.Length > 0)
+                                {
+                                    pin = pin.Substring(0, pin.Length - 1);
+                                    Console.Write("\b \b"); // Clear the last character and move the cursor back
+                                }
+                            }
+                        } while (keyInfo.Key != ConsoleKey.Enter);
+                           
+
+                                bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pin));
                         if (validPin)
                         {
                             Console.WriteLine("Login Successful!");
@@ -67,9 +88,8 @@ namespace BankNET.Utilities
 
         // Method for user Main Menu and handling menu
         static void UserMainMenu(BankContext context, string username)
-        {
-            bool keepTryingUserMenu = true;
-            while (keepTryingUserMenu)
+        { 
+            while (true)
             {
                 Console.Clear();
                 Console.WriteLine("1. See your accounts and balance" +
@@ -103,10 +123,9 @@ namespace BankNET.Utilities
                         Console.WriteLine("You are logged out.");
                         Thread.Sleep(1500);
                         Console.Clear();
-                        keepTryingUserMenu = false;
-                        break;
+                        return;
                     default:
-                        Console.Write("Invalid input, try again.");
+                        ErrorHandling.InvalidInput();
                         break;
                 }
             }
@@ -115,12 +134,13 @@ namespace BankNET.Utilities
         {          
                 while (true)
                 {
-                    Console.WriteLine("1. View all users");
-                    Console.WriteLine("2. Create user");
-                    Console.WriteLine("e. Exit"); // add pressing escape button to exit?
-                    string command = Console.ReadLine();
+                    Console.Clear();
+                    Console.WriteLine("1. View all users" +
+                    "\n2. Create user" +
+                    "\n3. Log out");
+                    string input = Console.ReadLine();
 
-                    switch (command)
+                    switch (input)
                     {
                         case "1":
                             AdminFunctions.ViewUsers(context);
@@ -128,11 +148,14 @@ namespace BankNET.Utilities
                         case "2":
                             AdminFunctions.CreateUser(context);
                             break;
-                        case "e":
+                        case "3":
+                            Console.Clear();
+                            Console.WriteLine("You are logged out.");
+                            Thread.Sleep(1500);
+                            Console.Clear();
                             return;
                         default:
-                            Console.Clear();
-                            Console.WriteLine($"Unknown command : {command}");
+                            ErrorHandling.InvalidInput();
                             break;
                     }
                 }

@@ -16,6 +16,13 @@ namespace BankNET.Utilities
             Thread.Sleep(1500);
             Environment.Exit(0);
         }
+
+        internal static void InvalidInput()
+        {
+            Console.Clear();
+            Console.WriteLine("Invalid input, try again.");
+            Thread.Sleep(1200);
+        }
         // Add method that checks for invalid input when doing console.readline.
 
         // Add method that checks for multiple wrong password attempts. (Extra)
