@@ -57,117 +57,118 @@ namespace BankNET.Utilities
                 UserName = newUsername,
                 Pin = pin
             };
+
             bool success = DbHelpers.AddUser(context, newUser);
             if (success)
             {
                 Console.WriteLine($"Created user {newUsername} with pin {pin}");
+                Console.ReadLine();
             }
             else
             {
                 Console.WriteLine($"Failed to create user with username {newUsername}");
+                Console.ReadLine();
             }
         }
 
         //Method for viewing list of all users.
-        internal static void ViewUsers(BankContext context)
+        internal static void ViewUsers(BankContext context, string username)
         {
-            Console.Clear();
-            List<User> users = DbHelpers.GetAllUsers(context);
-            Console.WriteLine($"Total number of users in system: {users.Count()}");
-            Console.WriteLine("Current users in system:");
-
-            foreach (User user in users)
-            {
-                Console.WriteLine($"{user.UserName}");
-            }
             while (true)
             {
+                Console.Clear();
+                List<User> users = DbHelpers.GetAllUsers(context);
+                Console.WriteLine($"Total number of users in system: {users.Count()}");
                 Console.WriteLine("---");
-                Console.WriteLine("1. View user");
-                Console.WriteLine("e. Go back");
-                string option = Console.ReadLine();
+                Console.WriteLine("Current users in system:");
 
-                switch (option)
+                foreach (User user in users)
                 {
-                    case "1":
-                        SelectUser(context);
-                        return;
-                    case "e":
-                        Console.Clear();
-                        return;
-                    default:
-                        //Console.Clear();
-                        //Console.WriteLine("Current users in system:");
-
-                        //foreach (User user in users)
-                        //{
-                        //    Console.WriteLine($"{user.UserName}");
-                        //}
-                        Console.WriteLine("Unknown command");
-                        break;
-
+                    Console.WriteLine($"{user.UserName}");
                 }
+                Console.WriteLine("---");
+
+                SelectUser(context, username);
+                break;
             }
         }
-    
 
-        //Selects user and shows accounts connected
-        internal static void SelectUser(BankContext context)
+        //Selects user and shows accounts connected. Leads into Admin to user submenu
+        internal static void SelectUser(BankContext context, string username)
         {
-            Console.WriteLine("Insert name: ");
-            string userSelect = Console.ReadLine();
+            while (true)
+            {
+                Console.Write("Insert name to view specific user or type 'e' to exit: ");
+                string userSelect = Console.ReadLine();
+                Console.WriteLine();
 
-            var userSelection = context.Users
-                .Where(u => u.UserName == userSelect)
-                .Select(u => new
+                var userSelection = context.Users
+                    .Where(u => u.UserName == userSelect)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.UserName,
+                        u.Pin,
+                        AccountCount = u.Accounts.Count(),
+                        Accounts = u.Accounts.Select(a => new { a.AccountName, a.AccountNumber, a.Balance }),
+                        TotalBalance = u.Accounts.Sum(a => a.Balance)
+                    })
+                    .ToList();
+
+                if (userSelection.Any())
                 {
-                    u.Id,
-                    u.UserName,
-                    u.Pin,
-                    AccountCount = u.Accounts.Count(),
-                    Accounts = u.Accounts.Select(a => new { a.AccountName, a.AccountNumber, a.Balance })
-                })
-                .ToList();
+                    foreach (var u in userSelection)
+                    {
+                        Console.WriteLine(
+                            $"Name: {u.UserName}," +
+                            $"\tPIN: ****" +
+                            $"\r\nAccounts: {u.AccountCount} \tTotal sum: {u.TotalBalance},"
+                            );
+                    }
 
-                foreach (var u in userSelection)
-                {
-                    Console.WriteLine(
-                        $"Name: {u.UserName}," +
-                        $"\tPIN: xxxx" +
-                        $"\tAccounts: {u.AccountCount}," 
-                        );
-                }
-
-                var UserAccounts = context.Users
-                    .Where (u => u.UserName == userSelect)
-                    .Include (u=> u.Accounts)
+                    var userAccounts = context.Users
+                    .Where(u => u.UserName == userSelect)
+                    .Include(u => u.Accounts)
                     .Single()
                     .Accounts
                     .ToList();
-                foreach (var ua in UserAccounts)
-                {
-                    Console.WriteLine($"AccountNumber: {ua.AccountNumber}\tAccountName: {ua.AccountName}\tBalance: {ua.Balance} missing currency");
+                    foreach (var ua in userAccounts)
+                    {
+                        Console.WriteLine($"AccountNumber: {ua.AccountNumber}\tAccountName: {ua.AccountName}\tBalance: {ua.Balance} missing currency");
+                    }
+
+                    Console.WriteLine();
+
+                    AdminUserView(context, userSelect, username, userAccounts);
                 }
-            Console.WriteLine();
-            AdminUserView(context, userSelect);
+                else if (userSelect == "e")
+                {
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("user cannot be found. please try again");
+                    break;
+                }
+            }
         }
-        
-        internal static void AdminUserView(BankContext context, string userSelect)
+        // admin to user submenu. Brings along selected username and admin username.
+        internal static void AdminUserView(BankContext context, string userSelect, string username, List<Account> userAccounts)
         {
             while (true)
             {
                 Console.WriteLine("1. Show pin");
                 Console.WriteLine("2. Delete user");
                 Console.WriteLine("e. go back");
-                Console.Write(": ");
+                Console.Write("Select option: ");
 
                 switch (Console.ReadLine())
                 {
                     case "1":
-                        ShowPin(context, userSelect);
-                        return;
+                        ShowPin(context, userSelect, username, userAccounts);
+                        break;
                     case "2":
-                        DeleteUser(context);
+                        DeleteUser(context, userSelect, username, userAccounts);
                         return;
                     case "e":
                         return;
@@ -175,45 +176,63 @@ namespace BankNET.Utilities
                         Console.WriteLine("Unknown command. Please try again");
                         break;
                 }
+                
             }
         }
-
-        internal static bool AdminPinCheck(BankContext context, string confirmation)
+        // method for showing pin by confirming admin pin.
+        private static void ShowPin(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
-            Console.Write(confirmation);
-            string pincheck = Console.ReadLine();
-
-            bool validPin = context.Users.Any(p => p.UserName.Equals("admin") && p.Pin.Equals(pincheck));
-            if (validPin)
-            {
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("wrong pin. taking you back");
-                return false;
-            }
-        }
-
-        private static void ShowPin(BankContext context, string userSelect)
-        {
-            if (AdminPinCheck(context, "Please enter Admin PIN to view user PIN"))
+            if (BankHelpers.SimplePinCheck(context, "Please enter Admin PIN to view user PIN: ", adminName))
             {
                 var user = context.Users
-                    .Where(u => u.UserName == userSelect)
-                    .FirstOrDefault();
-                Console.WriteLine($"PIN: {user.Pin}");
+                    .FirstOrDefault(u => u.UserName == userSelect);
+                if (user != null)
+                {
+                    Console.WriteLine($"Name: {user.UserName}," +
+                                      $"\tPIN: {user.Pin}");
+
+                    foreach (var ua in userAccounts)
+                    {
+                        Console.WriteLine($"AccountNumber: {ua.AccountNumber}\tAccountName: {ua.AccountName}\tBalance: {ua.Balance} missing currency");
+                    }
+
+                    Console.WriteLine();
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine("wrong PIN.");
+                }
 
             }
-
         }
-        internal static void DeleteUser(BankContext context)
+        //method for deleting user by confirming admin pin. Will only go through if accounts are zero
+        private static void DeleteUser(BankContext context, string userSelect, string username, List<Account> userAccounts)
         {
-            if (AdminPinCheck(context, "Confirm user deletion with Admin Pin"))
+            if (BankHelpers.SimplePinCheck(context, "Confirm user deletion with Admin Pin: ", username))
             {
+                if (BankHelpers.CheckAccountBalanceZero(userAccounts))
+                {
+                    var userToDelete = context.Users.FirstOrDefault(u => u.UserName == userSelect);
 
+                    if (userToDelete != null)
+                    {
+                        bool success = DbHelpers.DeleteUser(context, userToDelete);
+                        if (success)
+                        {
+                            Console.WriteLine($"Deleted user {username} and any connected accounts");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Failed to delete user with username {username}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Cannot delete user {username}. Some accounts have a remaining balance.");
+                    }
+                }
             }
-
         }
 
 
@@ -222,6 +241,7 @@ namespace BankNET.Utilities
         //* adding function to check if user is logging in for first time, forcing them to change pin?
         //* adding function for user to change pin, but not to a pin last used / used within the last 6 months?
         //* should we be able to view all info on a specific user incl. transaction history? OK
-        
+
     }
 }
+

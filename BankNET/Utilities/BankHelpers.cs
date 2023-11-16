@@ -56,5 +56,28 @@ namespace BankNET.Utilities
         {
             return account.Balance >= proposedAmount;
         }
+
+        // Checks pin of user
+        public static bool SimplePinCheck(BankContext context, string confirmation, string username)
+        {
+            Console.Write(confirmation); // add text that asks for pin
+            string pincheck = Console.ReadLine();
+
+            bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pincheck));
+            if (validPin)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        // Check if any account has a balance greater than zero
+        public static bool CheckAccountBalanceZero(List<Account> userAccounts)
+        {
+            return userAccounts.All(account => account.Balance == 0);
+        }
     }
 }

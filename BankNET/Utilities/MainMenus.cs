@@ -55,7 +55,7 @@ namespace BankNET.Utilities
         }
 
         //Method for adminstrator menu after successful log in
-        internal static void AdminMenu(BankContext context)
+        internal static void AdminMenu(BankContext context, string adminName)
         {          
             while (true)
             {
@@ -68,7 +68,7 @@ namespace BankNET.Utilities
                 switch (input)
                 {
                     case "1":
-                        AdminFunctions.ViewUsers(context);
+                        AdminFunctions.ViewUsers(context, adminName);
                         break;
                     case "2":
                         AdminFunctions.CreateUser(context);
