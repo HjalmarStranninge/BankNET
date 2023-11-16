@@ -19,18 +19,27 @@ namespace BankNET.Utilities
             bool tryAgainPin = true;
             int i = 0;
             
-            Console.WriteLine("Log in");
+            
+            
+            
 
             while (tryAgainUsername && i < 3)
             {
-                Console.Write("Enter username: ");
+                MenuUI.ClearAndPrintFooter();
+                MenuUI.PrintHeader();
+
+                Console.Write("\t   Enter username: ");
+                
+                Console.CursorVisible = true;
                 string username = Console.ReadLine();
+                Console.CursorVisible = false;
+
 
                 bool validUsername = context.Users.Any(uN => uN.UserName.Equals(username));
             
                 if (validUsername)
                 {
-                    Console.Write("Enter pin: ");
+                    Console.Write("\t   Enter pin: ");
                     string pin = Console.ReadLine();
 
                     bool validPin = context.Users.Any(p => p.Pin.Equals(pin));
@@ -44,7 +53,7 @@ namespace BankNET.Utilities
                             tryAgainPin = false;
                             
                             if (username == "admin") AdminMenu(context);
-                            else UserMainMenu(context, username);
+                            else MenuUI.UserMenu(context, username);
                         }
                         else Console.WriteLine($"Wrong pin, you have {3 - j} tries left.");
                         j++;
