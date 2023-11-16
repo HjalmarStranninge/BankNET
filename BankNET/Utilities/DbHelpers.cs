@@ -66,7 +66,7 @@ namespace BankNET.Utilities
                 $"{accountSending.AccountName}: {accountSending.Balance}\n"+
                 $"{accountReceiving.AccountName}: {accountReceiving.Balance}");
 
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
         }
 
     }
