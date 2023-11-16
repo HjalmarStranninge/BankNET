@@ -23,7 +23,7 @@ namespace BankNET
 
                 if (wantToLogin == "y")
                 {
-                    Menus.Login(context);
+                    LogInLogOut.Login(context);
                 }
             }
             
