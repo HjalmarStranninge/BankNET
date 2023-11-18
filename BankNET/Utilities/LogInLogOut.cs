@@ -48,7 +48,7 @@ namespace BankNET.Utilities
                     Console.WriteLine("Login successful!");
                     tryAgainLogin = false;
 
-                    if (username == "admin") MainMenus.AdminMenu(context);
+                    if (username == "admin") MainMenus.AdminMenu(context, username);
                     else MainMenus.UserMainMenu(context, username);
                 }
                 else

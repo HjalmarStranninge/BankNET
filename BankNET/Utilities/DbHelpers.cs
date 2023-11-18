@@ -21,23 +21,44 @@ namespace BankNET.Utilities
         // Add method for adding users.
 
 
-        internal static bool AddUser (BankContext context, User user)
+        public static bool AddUser (BankContext context, User user)
         {
             context.Users.Add(user);
             try
             {
                 context.SaveChanges();
             }
-            catch
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error adding user: {user}");
+                Console.WriteLine($"Error adding user: {user}. Error message: {ex.Message}");
                 return false;
             }
             return true;
         }
+        public static bool DeleteUser(BankContext context, User user)
+        {
+            var userToDelete = context.Users
+                .SingleOrDefault(u => u.UserName == user.UserName);
 
-        
+            if (userToDelete != null)
+            {
+                context.Users.Remove(userToDelete);
 
+                try
+                {
+                    context.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error removing user: {user.UserName}. Error message: {ex.Message}");
+                    return false;
+                }
+            }
+
+            Console.WriteLine($"User {user.UserName} not found.");
+            return false;
+        }
 
         // Method for saving new accounts to the database.
         public static void CreateNewAccount(BankContext context, string accountName, string accountNumber, User user)
