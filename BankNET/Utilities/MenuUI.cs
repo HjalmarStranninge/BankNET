@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace BankNET.Utilities
 {
+    // Class that handles the UI elements of the application. This include header/footer details and arrow key selection.
     internal static class MenuUI
     {
 
@@ -25,7 +26,6 @@ namespace BankNET.Utilities
             do
             {
                 ClearAndPrintFooter();
-
                 PrintHeader();
 
                 // Prints menu options and highlights the currently selected option.
@@ -40,6 +40,7 @@ namespace BankNET.Utilities
                         Console.Write($"{menuOptions[i]}");
                         Console.ResetColor();
 
+                        // Adjusts padding depending on length of the word. The longest word is 16 characters long so the padding is based on that.
                         if (menuOptions[i].Length == 16)
                         {
                             Console.Write($"".PadRight(9));
@@ -77,8 +78,6 @@ namespace BankNET.Utilities
                     Console.WriteLine();
                 }
 
-
-
                 key = Console.ReadKey();
 
                 // Update selected option based on arrow key input.
@@ -111,10 +110,9 @@ namespace BankNET.Utilities
                             selectedOption = (selectedOption + 1) % menuOptions.Length;
                         }
                         break;
+
                 }
-
-
-            } while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape);
+            } while (key.Key != ConsoleKey.Enter);
 
             // Perform action based on the selected option
             if (key.Key == ConsoleKey.Enter)
@@ -152,6 +150,8 @@ namespace BankNET.Utilities
                 }
             }
         }
+
+        // Prints a header with logo.
         public static void PrintHeader()
         {
             Console.Write($"------------------- <> Bank");
@@ -171,7 +171,7 @@ namespace BankNET.Utilities
 
         }
 
-
+        // Prints login screen and handles input. Reuses a lot of code from UserMenu method.
         public static void LoginScreen(BankContext context)
         {
             int selectedOption = 0;
@@ -205,8 +205,6 @@ namespace BankNET.Utilities
                         {
                             Console.Write($"".PadRight(25 - menuOptions[i].Length));
                         }
-
-
                     }
 
                     else
@@ -233,7 +231,6 @@ namespace BankNET.Utilities
                     }
                     Console.WriteLine();
                 }
-
 
                 key = Console.ReadKey();
 
@@ -268,7 +265,7 @@ namespace BankNET.Utilities
                         break;
                 }
 
-            } while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape);
+            } while (key.Key != ConsoleKey.Enter);
 
             // Perform action based on the selected option
             if (key.Key == ConsoleKey.Enter)
@@ -288,6 +285,5 @@ namespace BankNET.Utilities
                 }
             }
         }
-
     }
 }
