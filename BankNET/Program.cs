@@ -36,9 +36,7 @@ namespace BankNET
                 {
                     MainMenus.UserMainMenu(context, username);
                 }
-            }
-            
-
+            }           
         }
     }
 }

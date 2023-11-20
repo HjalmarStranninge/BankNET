@@ -30,7 +30,7 @@ namespace BankNET.Utilities
         {
             Console.Clear();
             Console.SetCursorPosition(0, 10);
-            Console.WriteLine("\n\n\n----------------------------------------------------");
+            Console.WriteLine("\n\n\n-----------------------------------------------------");
             Console.SetCursorPosition(0, 0);
             PrintHeader();
 

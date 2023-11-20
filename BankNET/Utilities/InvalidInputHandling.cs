@@ -14,20 +14,22 @@ namespace BankNET.Utilities
             if ((!validPin || !validUsername) && i == 0)
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("Invalid username and/or pin. You have 2 attempts left.");
-                Thread.Sleep(1500);
+                Console.WriteLine("\n\t    Invalid username and/or pin");
+                Console.WriteLine("\n\t     You have 2 attempts left.");
+                Thread.Sleep(2000);
             }
             else if ((!validPin || !validUsername) && i == 1)
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("Invalid username and/or pin. You have 1 attempt left.");
-                Thread.Sleep(1500);
+                Console.WriteLine("\n\t    Invalid username and/or pin");
+                Console.WriteLine("\n\t     You have 1 attempt left.");
+                Thread.Sleep(2000);
             }
             else
             {
                 MenuUI.ClearAndPrintFooter();
                 Console.WriteLine("Too many incorrect tries, program shutting down.");
-                Thread.Sleep(1500);
+                Thread.Sleep(2000);
                 Environment.Exit(0);
             }
         }
