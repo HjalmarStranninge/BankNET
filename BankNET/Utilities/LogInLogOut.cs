@@ -9,54 +9,190 @@ namespace BankNET.Utilities
 {
     internal class LogInLogOut
     {
-        internal static void Login(BankContext context)
+        internal static string Login(BankContext context)
         {
             bool tryAgainLogin = true;
-            int i = 0;
-            Console.Clear();
-
-            while (tryAgainLogin && i < 3)
+            int loginAttempts = 0;
+           
+            while (tryAgainLogin && loginAttempts < 3)
             {
-                Console.WriteLine("Log in");
-                Console.Write("Enter username: ");
-                string username = Console.ReadLine();
+                int selectedOption = 0;
+                string[] menuOptions = { "Login", "Exit" };
+                ConsoleKeyInfo key;
 
-                Console.Write("Enter pin: ");
-
-                ConsoleKeyInfo keyInfo;
-                string pin = "";
+                // Prints menu UI and lets user choose either login or exit with arrow keys.
                 do
                 {
-                    keyInfo = Console.ReadKey(true); // Read a key without displaying it
-                    if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
+                    MenuUI.ClearAndPrintFooter();
+
+                    Console.WriteLine("\n\t\tWelcome to BankNET!");
+                    Console.WriteLine("\t     Your trust - our priority\n");
+
+                    for (int i = 0; i < menuOptions.Length; i += 2)
                     {
-                        pin += keyInfo.KeyChar;
-                        Console.Write("*"); // Display a star for each character
+                        Console.Write(" ");
+
+                        // Highlights the currently selected option.
+                        if (i == selectedOption)
+                        {
+                            Console.BackgroundColor = ConsoleColor.Gray;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                            Console.Write($"\n\t{menuOptions[i]}");
+                            Console.ResetColor();
+
+                            if (menuOptions[i].Length == 16)
+                            {
+                                Console.Write($"".PadRight(9));
+                            }
+                            else
+                            {
+                                Console.Write($"".PadRight(25 - menuOptions[i].Length));
+                            }
+                        }
+
+                        else
+                        {
+                            Console.Write($"\n\t{menuOptions[i]}".PadRight(25));
+                        }
+
+                        if (i + 1 < menuOptions.Length)
+                        {
+                            Console.Write(" ");
+
+                            if (i + 1 == selectedOption)
+                            {
+                                Console.BackgroundColor = ConsoleColor.Gray;
+                                Console.ForegroundColor = ConsoleColor.Black;
+                                Console.Write($"{menuOptions[i + 1]}");
+                                Console.ResetColor();
+                                Console.Write($"".PadRight(14));
+                            }
+                            else
+                            {
+                                Console.Write($"{menuOptions[i + 1]}".PadRight(25));
+                            }
+                        }
+                        Console.WriteLine();
                     }
-                    else if (keyInfo.Key == ConsoleKey.Backspace && pin.Length > 0)
+
+                    key = Console.ReadKey();
+
+                    switch (key.Key)
                     {
-                        pin = pin.Substring(0, pin.Length - 1);
-                        Console.Write("\b \b"); // Clear the last character and move the cursor back
+                        case ConsoleKey.UpArrow:
+                            Console.Beep();
+                            selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
+                            break;
+
+                        case ConsoleKey.DownArrow:
+                            Console.Beep();
+                            selectedOption = (selectedOption + 2) % menuOptions.Length;
+                            break;
+
+                        case ConsoleKey.LeftArrow:
+                            if (selectedOption % 2 == 1 && selectedOption > 0)
+                            {
+                                // Move left only if the selected option is on the right and not on the first column.
+                                Console.Beep();
+                                selectedOption = (selectedOption - 1) % menuOptions.Length;
+                            }
+                            break;
+
+                        case ConsoleKey.RightArrow:
+                            if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
+                            {
+                                // Move right only if the selected option is on the left and there's an option on the right.
+                                Console.Beep();
+                                selectedOption = (selectedOption + 1) % menuOptions.Length;
+                            }
+                            break;
                     }
-                } while (keyInfo.Key != ConsoleKey.Enter);
 
-                bool validUsername = context.Users.Any(uN => uN.UserName.Equals(username));
-                bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pin));
+                } while (key.Key != ConsoleKey.Enter);
 
-                if (validUsername && validPin)
+                // Perform action based on the selected option
+                if (key.Key == ConsoleKey.Enter)
                 {
-                    Console.WriteLine("Login successful!");
-                    tryAgainLogin = false;
+                    switch (selectedOption)
+                    {
+                        // Login user with username and pin. Returns username.
+                        case 0:
 
-                    if (username == "admin") MainMenus.AdminMenu(context, username);
-                    else MainMenus.UserMainMenu(context, username);
-                }
-                else
-                {
-                    InvalidInputHandling.IncorrectLogin(validUsername, validPin, i);
-                    i++;
+                            bool loginSuccesful = false;
+                            while (!loginSuccesful)
+                            {
+                                MenuUI.ClearAndPrintFooter();
+                                Console.CursorVisible = true;
+
+                                Console.Write("\n\tEnter username: ");
+                                string username = Console.ReadLine();
+
+                                Console.Write("\n\tEnter pin: ");
+
+                                ConsoleKeyInfo keyInfo;
+                                string pin = "";
+                                do
+                                {
+                                    // Read a key without displaying it.
+                                    keyInfo = Console.ReadKey(true);
+                                    if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
+                                    {
+                                        // Display a star for each character.
+                                        pin += keyInfo.KeyChar;
+                                        Console.Write("*");
+                                    }
+                                    else if (keyInfo.Key == ConsoleKey.Backspace && pin.Length > 0)
+                                    {
+                                        // Clear the last character and move the cursor back.
+                                        pin = pin.Substring(0, pin.Length - 1);
+                                        Console.Write("\b \b");
+                                    }
+                                }
+                                while (keyInfo.Key != ConsoleKey.Enter);
+
+                                Console.CursorVisible = false;
+
+                                // Checks if username and pin matches any users in the database.
+                                bool validUsername = context.Users.Any(uN => uN.UserName.Equals(username));
+                                bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pin));
+
+                                // Returns username if everything checks out.
+                                if (validUsername && validPin)
+                                {
+                                    Console.WriteLine("Login successful!");
+                                    tryAgainLogin = false;
+
+                                    return username;
+                                    loginSuccesful = true;
+                                }
+
+                                else
+                                {
+                                    InvalidInputHandling.IncorrectLogin(validUsername, validPin, loginAttempts);
+                                    loginAttempts++;
+                                }
+                                
+                            }
+                            
+                            break;
+                            
+                        // Exits the application
+                        case 1:      
+                            MenuUI.ClearAndPrintFooter();
+                            Console.WriteLine("\n\t   Thank you for using BankNET!");
+                            Console.Write("\n\t      Press any key to exit");
+
+                            Console.CursorVisible = true;
+                            Console.ReadKey();
+                            
+
+                            Console.Clear();
+                            Environment.Exit(0);
+                            break;
+                    }
                 }
             }
+            return null;
         }
 
         internal static void LogOut()

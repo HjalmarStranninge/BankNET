@@ -82,7 +82,7 @@ namespace BankNET.Utilities
             accountReceiving.Balance += ammountToTransfer;
             context.SaveChanges();
 
-            Console.Clear();
+            MenuUI.ClearAndPrintFooter();
             Console.WriteLine($"Transfer successful! Updated account balances: \n" +
                 $"{accountSending.AccountName}: {accountSending.Balance}\n"+
                 $"{accountReceiving.AccountName}: {accountReceiving.Balance}");
