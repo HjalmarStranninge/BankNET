@@ -6,39 +6,37 @@ using System.Threading.Tasks;
 
 namespace BankNET.Utilities
 {
-    // Class containing methods for handling errors (Invalid inputs etc).
+    // Class containing methods for handling invalid inputs
     internal class InvalidInputHandling
     {
-        internal static void IncorrectLogin(bool validUsername, bool validPin, int i)
+        internal static void IncorrectLogin(int i)
         {
-            if ((!validPin || !validUsername) && i == 0)
+            MenuUI.ClearAndPrintFooter();
+            if (i == 0)
             {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("\n\t    Invalid username and/or pin");
+                Console.WriteLine("\n\t    Invalid username and/or pin.");
                 Console.WriteLine("\n\t     You have 2 attempts left.");
                 Thread.Sleep(2000);
             }
-            else if ((!validPin || !validUsername) && i == 1)
+            else if (i == 1)
             {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("\n\t    Invalid username and/or pin");
+                Console.WriteLine("\n\t    Invalid username and/or pin.");
                 Console.WriteLine("\n\t     You have 1 attempt left.");
                 Thread.Sleep(2000);
             }
             else
             {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("Too many incorrect tries, program shutting down.");
-                Thread.Sleep(2000);
+                Console.WriteLine("   Too many incorrect tries, program shutting down.");
+                Thread.Sleep(3000);
                 Environment.Exit(0);
             }
         }
-
-        internal static void InvalidInput()
+        internal static void InvalidWithdrawal(string message)
         {
-            Console.Clear();
-            Console.WriteLine("Invalid input, try again.");
-            Thread.Sleep(1200);
-        }      
+            Console.WriteLine($"\n{message}");
+            Console.Write("Returning to main menu...");
+            Thread.Sleep(2000);
+        }
+
     }
 }

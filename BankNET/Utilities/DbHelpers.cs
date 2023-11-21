@@ -18,9 +18,7 @@ namespace BankNET.Utilities
             return users;
         }
 
-        // Add method for adding users.
-
-
+        // Method for adding users.
         internal static bool AddUser (BankContext context, User user)
         {
             context.Users.Add(user);
@@ -67,7 +65,7 @@ namespace BankNET.Utilities
             {
                 AccountName = accountName,
                 AccountNumber = accountNumber,
-                Balance = 0,
+                Balance = 0.00m,
                 User = user
             };
             
@@ -82,15 +80,12 @@ namespace BankNET.Utilities
             accountReceiving.Balance += ammountToTransfer;
             context.SaveChanges();
 
-
-
             //Sounds.PlaySuccessSound();
-
             MenuUI.ClearAndPrintFooter();
 
             Console.WriteLine($"Transfer successful! Updated account balances: \n" +
-                $"{accountSending.AccountName}: {accountSending.Balance,2}\n"+
-                $"{accountReceiving.AccountName}: {accountReceiving.Balance,2}");
+                $"{accountSending.AccountName}: {accountSending.Balance,2} SEK\n"+
+                $"{accountReceiving.AccountName}: {accountReceiving.Balance,2} SEK");
             Thread.Sleep(3000);
         }
 
@@ -103,10 +98,9 @@ namespace BankNET.Utilities
             MenuUI.ClearAndPrintFooter();
             //Sounds.PlaySuccessSound();
             Console.WriteLine($"\n\t\tTransaction successful!");
-            Console.WriteLine($"\n\tAmount: {transferAmount}");
+            Console.WriteLine($"\n\tAmount: {transferAmount,2} SEK");
             Console.WriteLine($"\tSent from: {sendingAccount.AccountName} {sendingAccount.AccountNumber}");
             Console.WriteLine($"\tRecipient: {receivingAccount.AccountName} {receivingAccount.AccountNumber}");
-            Console.ReadLine();
         }
     }
 }

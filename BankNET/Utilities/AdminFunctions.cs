@@ -37,19 +37,13 @@ namespace BankNET.Utilities
                 if (string.IsNullOrWhiteSpace(newUsername))
                 {
                     MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("\n\t   Username cannot be blank");
+                    Console.WriteLine("\n\t   Username cannot be blank.");
                     Thread.Sleep(2000);
                 }               
                 else if (users.Any(user => user.UserName == newUsername.ToLower()))
                 {
                     MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("\n  Username 'admin' is not allowed. Please try again");
-                    Thread.Sleep(2000);
-                }
-                else if (users.Any(user => user.UserName == newUsername.ToLower()))
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("\n\t Username already exists. Please try again");
+                    Console.WriteLine("\n  Username already exists. Please try again.");
                     Thread.Sleep(2000);
                 }
                 else
@@ -77,13 +71,13 @@ namespace BankNET.Utilities
             if (success)
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t Created user {newUsername} with PIN: {pin}");
-                Thread.Sleep(2000);
+                Console.WriteLine($"\n\t Created user with username: {newUsername}, and pin: {pin}.");
+                Thread.Sleep(3000);
             }
             else
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t Failed to create user with username {newUsername}");
+                Console.WriteLine($"\n\t Failed to create user with username {newUsername}.");
                 Console.ReadLine();
             }
         }
@@ -95,7 +89,7 @@ namespace BankNET.Utilities
             {
                 MenuUI.ClearAndPrintFooter();
                 List<User> users = DbHelpers.GetAllUsers(context);
-                Console.WriteLine($"Total number of users in system: {users.Count()}");
+                Console.WriteLine($"Number of users in system: {users.Count()-1}");
                 Console.WriteLine("---");
                 Console.WriteLine("Current users in system:");
 
@@ -120,7 +114,7 @@ namespace BankNET.Utilities
             bool runMenu = true;
             while (runMenu)
             {
-                Console.Write("Enter name to view user or 'e' to exit: ");
+                Console.Write("Enter name to view user or 'r' to return to menu: ");
                 Console.CursorVisible = true;
                 string userSelect = Console.ReadLine();
                 Console.CursorVisible = false;
@@ -146,8 +140,8 @@ namespace BankNET.Utilities
                     foreach (var u in userSelection)
                     {
                         Console.WriteLine(
-                            $"Name: {u.UserName}," +
-                            $"\tPIN: ****" +
+                            $"Username: {u.UserName}," +
+                            $"\tPin: ****" +
                             $"\r\nAccounts: {u.AccountCount} \tTotal balance: {u.TotalBalance,2} SEK");
                     }
 
@@ -165,14 +159,14 @@ namespace BankNET.Utilities
                     AdminUserView(context, userSelect, adminName, userAccounts);
                     runMenu = false;
                 }
-                else if (userSelect == "e")
+                else if (userSelect == "r")
                 {
                     runMenu = false;
                     return;
                 }
                 else
                 {
-                    Console.WriteLine("User cannot be found. Please try again");
+                    Console.WriteLine("User not found. Please try again.");
                     Thread.Sleep(2000);
                     break;
                 }
@@ -188,7 +182,7 @@ namespace BankNET.Utilities
                 int selectedOption = 0;
                 // Saving the current cursor position in a variable so we can return to it later.
                 int originalTop = Console.CursorTop;
-                string[] menuOptions = { "Show PIN", "Delete user", "Exit" };
+                string[] menuOptions = { "Show pin", "Delete user", "Exit" };
                 do
                 {
 
@@ -263,7 +257,9 @@ namespace BankNET.Utilities
         // Method for showing pin after confirming admin pin.
         private static void ShowPin(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
-            if (BankHelpers.SimplePinCheck(context, "Please enter Admin PIN to view user PIN: ", adminName))
+            Console.Write("\n");
+            Console.Write("Please enter admin pin to view user pin: "); // add text that asks for pin
+            if (BankHelpers.SimplePinCheck(context, adminName))
             {
                 var user = context.Users
                     .FirstOrDefault(u => u.UserName == userSelect);
@@ -271,8 +267,8 @@ namespace BankNET.Utilities
                 {
                     MenuUI.ClearAndPrintFooter();
 
-                    Console.WriteLine($"\nName: {user.UserName} " +
-                                      $"\tPIN: {user.Pin}");
+                    Console.WriteLine($"\nUsername: {user.UserName} " +
+                                      $"\tPin: {user.Pin}");
 
                     foreach (var ua in userAccounts)
                     {
@@ -284,7 +280,7 @@ namespace BankNET.Utilities
                 }
                 else
                 {
-                    Console.WriteLine("\n\n\t          Wrong PIN.");
+                    Console.WriteLine("\n\n\t          Wrong pin.");
                 }
             }
         }
@@ -294,7 +290,9 @@ namespace BankNET.Utilities
         {
             if(userSelect != adminName)
             {
-                if (BankHelpers.SimplePinCheck(context, "Confirm user deletion with Admin Pin: ", adminName))
+                Console.Write("\n");
+                Console.Write("Confirm user deletion with admin pin: ");
+                if (BankHelpers.SimplePinCheck(context, adminName))
                 {
                     var userToDelete = context.Users.FirstOrDefault(u => u.UserName == userSelect);
                     if (BankHelpers.CheckAccountBalanceZero(userAccounts))
@@ -306,7 +304,7 @@ namespace BankNET.Utilities
                             if (success)
                             {
                                 MenuUI.ClearAndPrintFooter();
-                                Console.WriteLine($"\n    Deleted user {userToDelete.UserName} and any connected accounts");
+                                Console.WriteLine($"\n    Deleted user {userToDelete.UserName} and any connected accounts.");
                                 Thread.Sleep(2000);
                             }
                             else
@@ -330,7 +328,7 @@ namespace BankNET.Utilities
             else
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t     Admin user cannot be deleted!");
+                Console.WriteLine($"\n\t     Admin user cannot be deleted.");
                 Thread.Sleep(2000);
             }
 
@@ -358,19 +356,16 @@ namespace BankNET.Utilities
                 if (adminCreated)
                 {
                     Console.WriteLine("\n\t     Administrator account created");
-                    Console.Write("\n\t      Username: admin  PIN: 1234");
-                    Thread.Sleep(2500);
+                    Console.Write("\n\t      Username: admin  Pin9: 1234");
+                    Thread.Sleep(3000);
                 }
             }            
         }
 
 
-        //* should we allow the function of deleting a user? OK
-        //* should we allow function of reseting customer pin? OK
         //* adding function to check if user is logging in for first time, forcing them to change pin?
         //* adding function for user to change pin, but not to a pin last used / used within the last 6 months?
-        //* should we be able to view all info on a specific user incl. transaction history? OK
-
+    
     }
 }
 

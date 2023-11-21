@@ -181,6 +181,8 @@ namespace BankNET.Utilities
                 if (BankHelpers.IsThereBalance(sendingAccount, transferAmount))
                 {
                     DbHelpers.TransferInternal(context, sendingAccount, receivingAccount, transferAmount);
+                    Console.WriteLine("\n\t\tPress ENTER to continue");
+                    Console.ReadLine();
                 }
 
                 // Error message if there isn't enough balance.

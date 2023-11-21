@@ -11,9 +11,8 @@ namespace BankNET.Utilities
     // Class containing methods helpful for bank management.
     internal static class BankHelpers
     {
-
         // Method for generating new account numbers.
-        public static string GenerateAccountNumber()
+        internal static string GenerateAccountNumber()
         {
             var random = new Random();
 
@@ -29,26 +28,12 @@ namespace BankNET.Utilities
         }
 
         // Method for checking if a new account number is unique, if it is, it returns true.
-        public static bool IsAccountNumberUnique(string accountNumber)
+        internal static bool IsAccountNumberUnique(string accountNumber)
         {
             using (var context = new BankContext())
             {
                 return !context.Accounts.Any(a => a.AccountNumber == accountNumber);
             }
-        }
-
-        // Iterates through all the account names of a specific user and returns true if it matches the account your searching for.
-        public static bool IsAccountNameMatching(string accountName, User user)
-        {          
-            foreach (Account account in user.Accounts)
-            {
-                if (account.AccountName.ToLower() == accountName.ToLower())
-                {
-                    return true;
-                }
-            }
-
-            return false;            
         }
 
         // Checks if an amount is bigger or smaller than the balance of an account.
@@ -58,10 +43,8 @@ namespace BankNET.Utilities
         }
 
         // Checks pin of user
-        public static bool SimplePinCheck(BankContext context, string confirmation, string username)
+        public static bool SimplePinCheck(BankContext context, string username)
         {
-            Console.Write("\n");
-            Console.Write(confirmation); // add text that asks for pin
             string pincheck = MenuUI.EnterPinHidden();
 
             bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pincheck));

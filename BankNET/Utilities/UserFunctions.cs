@@ -32,12 +32,12 @@ namespace BankNET.Utilities
             {
                 Console.WriteLine($"{account.AccountNumber} {account.AccountName}\nBalance: {account.Balance,2} SEK\n");
             }
-            Console.Write("Press enter to return to menu. ");
+            Console.WriteLine("\n\n\t    Press ENTER to return to menu");
             Console.ReadLine();
         }
 
         // Method for withdrawing money.
-        public static void Withdraw(BankContext context, string username)
+        internal static void Withdraw(BankContext context, string username)
         {
             User? user = context.Users
                 .Where(u => u.UserName == username)
@@ -119,14 +119,14 @@ namespace BankNET.Utilities
 
                 if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
                 {
-                    HandleInvalidInput("Invalid input for withdrawal amount. Withdrawal canceled.");
+                    InvalidInputHandling.InvalidWithdrawal("Invalid input for withdrawal amount. Withdrawal canceled.");
                     return;
                 }
 
                 // Check if there is sufficient balance.
                 if (amount > selectedAccount.Balance)
                 {
-                    HandleInvalidInput("Insufficient balance. Withdrawal canceled.");
+                    InvalidInputHandling.InvalidWithdrawal("Insufficient balance. Withdrawal canceled.");
                     return;
                 }
 
@@ -140,8 +140,8 @@ namespace BankNET.Utilities
                     MenuUI.ClearAndPrintFooter();
                     
                     Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
-                    Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK\n");
-                    Console.Write("\t\tPress ENTER to continue");
+                    Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
+                    Console.WriteLine("\n\t\tPress ENTER to continue");
 
                     Console.ReadLine();
                 }
@@ -250,8 +250,8 @@ namespace BankNET.Utilities
                         MenuUI.ClearAndPrintFooter();
                         context.SaveChanges();                       
                         Console.WriteLine($"\nYou have deposited {amount,2} SEK into {selectedAccount.AccountName}.");
-                        Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK\n");
-                        Console.Write("\t\tPress ENTER to continue");
+                        Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
+                        Console.WriteLine("\n\t\tPress ENTER to continue");
                         Console.ReadLine();
                     }
 
@@ -266,7 +266,6 @@ namespace BankNET.Utilities
                 Console.CursorVisible = false;
             }
         }
-
 
 
         // Method for creating new accounts.
@@ -301,13 +300,13 @@ namespace BankNET.Utilities
                 Console.WriteLine($"\n\t\t   Account created!\n" +
                     $"\t   Your account number is {newAccountNumber}");
 
-                Thread.Sleep(2000);
+                Thread.Sleep(3000);
             }
 
             else
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("\t\tAccount name cannot be empty");
+                Console.WriteLine("\t\tAccount name cannot be empty.");
 
                 Thread.Sleep(2000);
             }
@@ -415,12 +414,7 @@ namespace BankNET.Utilities
             }          
          
         }
-        private static void HandleInvalidInput(string message)
-        {
-            Console.WriteLine($"\n{message}");
-            Console.Write("Returning to the main menu...");
-            Thread.Sleep(2000);
-        }
+
     }
 }
 

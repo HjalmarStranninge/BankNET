@@ -43,7 +43,6 @@ namespace BankNET.Utilities
                             Console.ResetColor();                        
                             Console.Write($"".PadRight(23 - menuOptions[i].Length));                            
                         }
-
                         else
                         {
                             Console.Write("\n\t    ");
@@ -111,17 +110,14 @@ namespace BankNET.Utilities
 
                                 Console.Write("\n\tEnter pin: ");
 
-                                ConsoleKeyInfo keyInfo;
-                                string pin = MenuUI.EnterPinHidden();
-                                
+                                ConsoleKeyInfo keyInfo;                                
                                 Console.CursorVisible = false;
 
                                 // Checks if username and pin matches any users in the database.
-                                bool validUsername = context.Users.Any(uN => uN.UserName.Equals(username));
-                                bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pin));
+                                bool validUsernameAndPin = BankHelpers.SimplePinCheck(context, username);
 
                                 // Returns username if everything checks out.
-                                if (validUsername && validPin)
+                                if (validUsernameAndPin)
                                 {
                                     Console.WriteLine("Login successful!");
                                     tryAgainLogin = false;
@@ -130,10 +126,9 @@ namespace BankNET.Utilities
                                     return username;
                                    
                                 }
-
                                 else
                                 {
-                                    InvalidInputHandling.IncorrectLogin(validUsername, validPin, loginAttempts);
+                                    InvalidInputHandling.IncorrectLogin(loginAttempts);
                                     loginAttempts++;
                                 }                               
                             }
@@ -146,7 +141,7 @@ namespace BankNET.Utilities
                             Console.WriteLine("\n\t   Thank you for using BankNET!");
                             Thread.Sleep(1000);
                             Console.WriteLine("\n\t      Exiting application...");
-                            Thread.Sleep(1500);
+                            Thread.Sleep(3000);
 
                             Console.Clear();
                             Environment.Exit(0);
