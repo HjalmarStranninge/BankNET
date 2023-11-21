@@ -12,20 +12,24 @@ namespace BankNET.Utilities
         internal static void IncorrectLogin(bool validUsername, bool validPin, int i)
         {
             if ((!validPin || !validUsername) && i == 0)
-                {
-                Console.Clear();
-                Console.WriteLine("Invalid username and/or pin. You have 2 tries left.");
+            {
+                MenuUI.ClearAndPrintFooter();
+                Console.WriteLine("\n\t    Invalid username and/or pin");
+                Console.WriteLine("\n\t     You have 2 attempts left.");
+                Thread.Sleep(2000);
             }
             else if ((!validPin || !validUsername) && i == 1)
             {
-                Console.Clear();
-                Console.WriteLine("Invalid username and/or pin. You have 1 try left.");
+                MenuUI.ClearAndPrintFooter();
+                Console.WriteLine("\n\t    Invalid username and/or pin");
+                Console.WriteLine("\n\t     You have 1 attempt left.");
+                Thread.Sleep(2000);
             }
             else
             {
-                Console.Clear();
+                MenuUI.ClearAndPrintFooter();
                 Console.WriteLine("Too many incorrect tries, program shutting down.");
-                Thread.Sleep(1500);
+                Thread.Sleep(2000);
                 Environment.Exit(0);
             }
         }
@@ -35,9 +39,6 @@ namespace BankNET.Utilities
             Console.Clear();
             Console.WriteLine("Invalid input, try again.");
             Thread.Sleep(1200);
-        }
-        // Add method that checks for invalid input when doing console.readline.
-
-        // Add method that checks for multiple wrong password attempts. (Extra)
+        }      
     }
 }
