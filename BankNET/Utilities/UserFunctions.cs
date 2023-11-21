@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace BankNET.Utilities
 {
@@ -313,8 +314,8 @@ namespace BankNET.Utilities
             
         }
 
-        // Method for transferring money internally between 2 accounts belonging to the same user.
-        internal static void TransferInternal(BankContext context, string username)
+        // Method for transferring money. User can choose whether they want to transfer between their own accounts or to another user.
+        internal static void TransferOptions(BankContext context, string username)
         {
 
             User? user = context.Users
@@ -323,175 +324,102 @@ namespace BankNET.Utilities
 
             MenuUI.ClearAndPrintFooter();
 
-            Console.CursorVisible = true;
-            Console.WriteLine("\t      Transfer to which account?");
-            Console.Write("\t      ");
-            string? accountReceiving = Console.ReadLine();
+            int selectedOption = 0;
+            string[] menuOptions = { "Internal", "External" };
+            ConsoleKeyInfo key;
 
-            Console.WriteLine("\n\t      Transfer from which account?");
-            Console.Write("\t      ");
-            string? accountSending = Console.ReadLine();
-            
-            // Checks if the accounts the user wants to transfer between exist.
-            if (BankHelpers.IsAccountNameMatching(accountReceiving, user) && BankHelpers.IsAccountNameMatching(accountSending, user))
-            {                            
-                decimal transferAmount = 0;
-                bool validInput = false;
-
-                // Keeps the user stuck in a loop until they enter a valid numeric amount.
-                do
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    
-                    Console.Write("\t Enter amount you wish to transfer: ");
-                    try
-                    {
-                        transferAmount = decimal.Parse(Console.ReadLine());
-                        validInput = true;
-                        Console.CursorVisible = false;
-                    }
-                    catch (Exception ex)
-                    {
-                        MenuUI.ClearAndPrintFooter();
-                        
-                        Console.WriteLine($"An error occurred: {ex.Message}");
-                        Console.WriteLine("Please enter a valid amount, numbers only.");
-                      
-                        Thread.Sleep(2000);
-                    }
-
-                }while(!validInput);
-                
-                // Creating reference accounts for the sending and recieving accounts.
-                Account sendingAccount = user.Accounts.FirstOrDefault(account => account.AccountName.ToLower()  == accountSending.ToLower());
-                Account recievingAccount = user.Accounts.FirstOrDefault(account => account.AccountName.ToLower()  == accountReceiving.ToLower());
-
-                // Check if there is enough balance to complete the transaction and proceeds to do so if there is.
-                if(BankHelpers.IsThereBalance(sendingAccount, transferAmount))
-                {                   
-                    DbHelpers.TransferInternal(context, sendingAccount, recievingAccount, transferAmount);                    
-                }
-                
-                // Error message if there isn't enough balance.
-                else
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("Transaction failed. Not enough funds in the account.");
-
-                    Thread.Sleep(2000);
-                }
-            }
-
-            // Error message if the user enters an account name that doesn't match any existing account.
-            else
-            {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("Account names do not match. Transaction failed.");
-
-                Thread.Sleep(2000);
-            }
-        }
-      
-      
-        internal static void TransferExternal(BankContext context, string senderUsername)
-        {
-            User? sender = context.Users
-                .Include(u => u.Accounts)
-                .FirstOrDefault(u => u.UserName == senderUsername);
-
-            if (sender == null)
-            {
-                Console.Clear();
-                Console.WriteLine("Invalid sender username. Transaction failed. ");
-                Console.Write("Returning to the main menu...");
-                Thread.Sleep(2000);
-                return;
-            }
-
-            Console.Clear();
-            Console.Write("Transfer to which user: ");
-            string receiverUsername = Console.ReadLine();
-
-            User receiver = context.Users
-                .Include(u => u.Accounts)
-                .FirstOrDefault(u => u.UserName == receiverUsername);
-
-            if (receiver == null)
-            {
-                Console.Clear();
-                Console.WriteLine("Invalid receiver username. Transaction failed. ");
-                Console.Write("Returning to the main menu...");
-                Thread.Sleep(2000);
-                return;
-            }
-
-            Console.Write("Transfer from which account: ");
-            string accountSending = Console.ReadLine();
-
-            // Move the account input and validation outside of the existence check.
-            Account sendingAccount = sender.Accounts.FirstOrDefault(account => account.AccountName.Equals(accountSending, StringComparison.OrdinalIgnoreCase));
-
-            if (sendingAccount == null)
-            {
-                Console.Clear();
-                Console.Write("Invalid sending account. Transaction failed. ");
-                Console.Write("Returning to the main menu...");
-                Thread.Sleep(2000);
-                return;
-            }
-
-            Console.Write("Transfer to which account: ");
-            string accountReceiving = Console.ReadLine();
-
-            // Checks if the accounts the user wants to transfer between exist.
-            if (!BankHelpers.IsAccountNameMatching(accountReceiving, receiver))
-            {
-                Console.Clear();
-                Console.Write("Account names do not match. Transaction failed. ");
-                Console.Write("Returning to the main menu...");
-                Thread.Sleep(2000);
-                return;
-            }
-
-            decimal transferAmount;
-            bool validInput = false;
-
-            // Keeps the user stuck in a loop until they enter a valid numeric amount.
             do
             {
-                Console.Clear();
-                Console.Write("Enter amount you wish to transfer: ");
+                MenuUI.ClearAndPrintFooter();
 
-                if (decimal.TryParse(Console.ReadLine(), out transferAmount) && transferAmount > 0)
+                Console.WriteLine("\n\t\tChoose transfer option");               
+
+                for (int i = 0; i < menuOptions.Length; i += 2)
                 {
-                    validInput = true;
+                    Console.Write(" ");
+
+                    // Highlights the currently selected option.
+                    if (i == selectedOption)
+                    {
+                        Console.Write("\n\t     ");
+                        Console.BackgroundColor = ConsoleColor.Gray;
+                        Console.ForegroundColor = ConsoleColor.Black;
+
+                        Console.Write($"{menuOptions[i]}");
+                        Console.ResetColor();
+                        Console.Write($"".PadRight(19 - menuOptions[i].Length));
+                    }
+
+                    else
+                    {
+                        Console.Write("\n\t     ");
+                        Console.Write($"{menuOptions[i]}".PadRight(19));
+                    }
+
+                    if (i + 1 < menuOptions.Length)
+                    {
+                        Console.Write(" ");
+
+                        if (i + 1 == selectedOption)
+                        {
+                            Console.BackgroundColor = ConsoleColor.Gray;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                            Console.Write($"{menuOptions[i + 1]}");
+                            Console.ResetColor();
+                        }
+                        else
+                        {
+                            Console.Write($"{menuOptions[i + 1]}");
+                        }
+                    }
+                    Console.WriteLine();
                 }
-                else
+
+                key = Console.ReadKey();
+
+                switch (key.Key)
                 {
-                    Console.Clear();
-                    Console.Write("Invalid input. Please enter a valid amount. ");
-                    Console.Write("Returning to the main menu...");
-                    Thread.Sleep(2000);
+                    case ConsoleKey.LeftArrow:
+                        if (selectedOption % 2 == 1 && selectedOption > 0)
+                        {
+                            Console.Beep();
+                            selectedOption = (selectedOption - 1) % menuOptions.Length;
+                        }
+                        break;
+
+                    case ConsoleKey.RightArrow:
+                        if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
+                        {
+                            Console.Beep();
+                            selectedOption = (selectedOption + 1) % menuOptions.Length;
+                        }
+                        break;
                 }
-            } while (!validInput);
 
-            // Creating reference accounts for the sending and receiving accounts.
-            Account receivingAccount = receiver.Accounts.FirstOrDefault(account => account.AccountName.Equals(accountReceiving, StringComparison.OrdinalIgnoreCase));
+            } while (key.Key != ConsoleKey.Enter);
 
-            // Check if there is enough balance to complete the transaction and proceeds to do so if there is.
-            if (BankHelpers.IsThereBalance(sendingAccount, transferAmount))
+            if (key.Key == ConsoleKey.Enter)
             {
-                DbHelpers.TransferExternal(context, sendingAccount, receivingAccount, transferAmount);
-            }
-            // Error message if there isn't enough balance.
-            else
-            {
-                Console.Clear();
-                Console.Write("Not enough funds in the account. Transaction failed. ");
-                Console.Write("Returning to the main menu...");
-                Thread.Sleep(2000);
-                return;
-            }
+                switch (selectedOption)
+                {
+                    
+                    case 0:
+                        Transfer.TransferInternal(context, username);
+                        break;
+                   
+                    case 1:
+
+                        Transfer.TransferExternal(context, username);
+                        break;
+                }
+            }          
+         
+        }
+        private static void HandleInvalidInput(string message)
+        {
+            Console.WriteLine($"\n{message}");
+            Console.Write("Returning to the main menu...");
+            Thread.Sleep(2000);
         }
     }
 }

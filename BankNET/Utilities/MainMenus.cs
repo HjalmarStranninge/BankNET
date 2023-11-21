@@ -129,7 +129,7 @@ namespace BankNET.Utilities
 
                         case 1:
                             // Handle Option 2
-                            UserFunctions.TransferInternal(context, username);
+                            UserFunctions.TransferOptions(context, username);
                             break;
 
                         case 2:
