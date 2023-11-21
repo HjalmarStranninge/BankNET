@@ -21,13 +21,17 @@ namespace BankNET
             // Creates new context for interacting with the database.
             using BankContext context = new BankContext();
 
+            MenuUI.ClearAndPrintFooter();
+            
+            AdminFunctions.CreateAdmin(context);
+
             bool runProgram = true;
             while (runProgram)
             {
                 // Runs the login method.
                 string username = LogInLogOut.Login(context);
 
-                if (username.ToLower() == "admin")
+                if (username == "admin")
                 {
                     MainMenus.AdminMenu(context, username);
                 }

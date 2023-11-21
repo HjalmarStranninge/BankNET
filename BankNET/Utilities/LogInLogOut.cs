@@ -25,8 +25,8 @@ namespace BankNET.Utilities
                 {
                     MenuUI.ClearAndPrintFooter();
 
-                    Console.WriteLine("\n\t\tWelcome to BankNET!");
-                    Console.WriteLine("\t     Your trust - our priority\n");
+                    Console.WriteLine("\n\t\t Welcome to BankNET!");
+                    Console.WriteLine("\t      Your trust - our priority\n");
 
                     for (int i = 0; i < menuOptions.Length; i += 2)
                     {
@@ -35,24 +35,19 @@ namespace BankNET.Utilities
                         // Highlights the currently selected option.
                         if (i == selectedOption)
                         {
+                            Console.Write("\n\t    ");
                             Console.BackgroundColor = ConsoleColor.Gray;
                             Console.ForegroundColor = ConsoleColor.Black;
-                            Console.Write($"\n\t{menuOptions[i]}");
-                            Console.ResetColor();
 
-                            if (menuOptions[i].Length == 16)
-                            {
-                                Console.Write($"".PadRight(9));
-                            }
-                            else
-                            {
-                                Console.Write($"".PadRight(25 - menuOptions[i].Length));
-                            }
+                            Console.Write($"{menuOptions[i]}");
+                            Console.ResetColor();                        
+                            Console.Write($"".PadRight(23 - menuOptions[i].Length));                            
                         }
 
                         else
                         {
-                            Console.Write($"\n\t{menuOptions[i]}".PadRight(25));
+                            Console.Write("\n\t    ");
+                            Console.Write($"{menuOptions[i]}".PadRight(23));
                         }
 
                         if (i + 1 < menuOptions.Length)
@@ -65,11 +60,10 @@ namespace BankNET.Utilities
                                 Console.ForegroundColor = ConsoleColor.Black;
                                 Console.Write($"{menuOptions[i + 1]}");
                                 Console.ResetColor();
-                                Console.Write($"".PadRight(14));
                             }
                             else
                             {
-                                Console.Write($"{menuOptions[i + 1]}".PadRight(25));
+                                Console.Write($"{menuOptions[i + 1]}");
                             }
                         }
                         Console.WriteLine();
@@ -78,21 +72,10 @@ namespace BankNET.Utilities
                     key = Console.ReadKey();
 
                     switch (key.Key)
-                    {
-                        case ConsoleKey.UpArrow:
-                            Console.Beep();
-                            selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
-                            break;
-
-                        case ConsoleKey.DownArrow:
-                            Console.Beep();
-                            selectedOption = (selectedOption + 2) % menuOptions.Length;
-                            break;
-
+                    {                      
                         case ConsoleKey.LeftArrow:
                             if (selectedOption % 2 == 1 && selectedOption > 0)
                             {
-                                // Move left only if the selected option is on the right and not on the first column.
                                 Console.Beep();
                                 selectedOption = (selectedOption - 1) % menuOptions.Length;
                             }
@@ -101,7 +84,6 @@ namespace BankNET.Utilities
                         case ConsoleKey.RightArrow:
                             if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
                             {
-                                // Move right only if the selected option is on the left and there's an option on the right.
                                 Console.Beep();
                                 selectedOption = (selectedOption + 1) % menuOptions.Length;
                             }
@@ -130,26 +112,8 @@ namespace BankNET.Utilities
                                 Console.Write("\n\tEnter pin: ");
 
                                 ConsoleKeyInfo keyInfo;
-                                string pin = "";
-                                do
-                                {
-                                    // Read a key without displaying it.
-                                    keyInfo = Console.ReadKey(true);
-                                    if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
-                                    {
-                                        // Display a star for each character.
-                                        pin += keyInfo.KeyChar;
-                                        Console.Write("*");
-                                    }
-                                    else if (keyInfo.Key == ConsoleKey.Backspace && pin.Length > 0)
-                                    {
-                                        // Clear the last character and move the cursor back.
-                                        pin = pin.Substring(0, pin.Length - 1);
-                                        Console.Write("\b \b");
-                                    }
-                                }
-                                while (keyInfo.Key != ConsoleKey.Enter);
-
+                                string pin = MenuUI.EnterPinHidden();
+                                
                                 Console.CursorVisible = false;
 
                                 // Checks if username and pin matches any users in the database.
@@ -162,16 +126,16 @@ namespace BankNET.Utilities
                                     Console.WriteLine("Login successful!");
                                     tryAgainLogin = false;
 
-                                    return username;
                                     loginSuccesful = true;
+                                    return username;
+                                   
                                 }
 
                                 else
                                 {
                                     InvalidInputHandling.IncorrectLogin(validUsername, validPin, loginAttempts);
                                     loginAttempts++;
-                                }
-                                
+                                }                               
                             }
                             
                             break;
@@ -180,11 +144,9 @@ namespace BankNET.Utilities
                         case 1:      
                             MenuUI.ClearAndPrintFooter();
                             Console.WriteLine("\n\t   Thank you for using BankNET!");
-                            Console.Write("\n\t      Press any key to exit");
-
-                            Console.CursorVisible = true;
-                            Console.ReadKey();
-                            
+                            Thread.Sleep(1000);
+                            Console.WriteLine("\n\t      Exiting application...");
+                            Thread.Sleep(1500);
 
                             Console.Clear();
                             Environment.Exit(0);
@@ -193,14 +155,6 @@ namespace BankNET.Utilities
                 }
             }
             return null;
-        }
-
-        internal static void LogOut()
-        {
-            Console.Clear();
-            Console.WriteLine("You are logged out.");
-            Thread.Sleep(1500);
-            Console.Clear();
         }
 
     }

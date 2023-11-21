@@ -159,32 +159,80 @@ namespace BankNET.Utilities
 
         //Method for adminstrator menu after successful log in
         internal static void AdminMenu(BankContext context, string adminName)
-        {          
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine("1. View all users" +
-                "\n2. Create user" +
-                "\n3. Log out");
-                string input = Console.ReadLine();
+        {
+            bool runMenu = true;
 
-                switch (input)
+            // Key variable for navigating menu with arrow keys.
+            ConsoleKeyInfo key;
+
+            while (runMenu)
+            {
+                int selectedOption = 0;
+
+                string[] menuOptions = { "View all users", "Create new user", "Log out" };
+                do
                 {
-                    case "1":
-                        AdminFunctions.ViewUsers(context, adminName);
-                        break;
-                    case "2":
-                        AdminFunctions.CreateUser(context);
-                        break;
-                    case "3":
-                        LogInLogOut.LogOut();
-                        return;
-                    default:
-                        InvalidInputHandling.InvalidInput();
-                        break;
+                    MenuUI.ClearAndPrintFooter();
+
+                    for (int i = 0; i < menuOptions.Length; i++)
+                    {
+                        if (i == selectedOption)
+                        {
+                            Console.BackgroundColor = ConsoleColor.Gray;
+                            Console.ForegroundColor = ConsoleColor.Black;
+
+                            Console.WriteLine($"\n\t{menuOptions[i]}");
+                            Console.ResetColor();
+                        }
+
+                        else
+                        {
+                            Console.WriteLine($"\n\t{menuOptions[i]}");
+                        }
+                    }
+
+                    key = Console.ReadKey();
+
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.DownArrow:
+                            Console.Beep();
+                            selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
+                            break;
+
+                        case ConsoleKey.UpArrow:
+                            Console.Beep();
+                            selectedOption = (selectedOption + 2) % menuOptions.Length;
+                            break;
+
+                    }
+                } while (key.Key != ConsoleKey.Enter);
+
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    switch (selectedOption)
+                    {
+                        case 0:
+                            // Handle Option 1
+                            AdminFunctions.ViewUsers(context, adminName);
+                            break;
+
+                        case 1:
+                            // Handle Option 2
+                            AdminFunctions.CreateUser(context);
+                            break;
+
+                        case 2:
+                            // Handle Option 3
+                            MenuUI.ClearAndPrintFooter();
+                            Console.WriteLine("\n\n\t   Logging you out. Please wait..");
+                            runMenu = false;
+                            Thread.Sleep(2000);
+                            break;
+
+                    }
                 }
             }
         }
-
     }
 }

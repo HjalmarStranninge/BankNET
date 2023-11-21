@@ -83,16 +83,25 @@ namespace BankNET.Utilities
 
                 switch (key.Key)
                 {
-                    case ConsoleKey.DownArrow:
-                        Console.Beep();
-                        selectedOption = (selectedOption - 2 + menuOptions.Count) % menuOptions.Count;
+                    case ConsoleKey.UpArrow:
+
+                        if (selectedOption > 0)
+                        {
+                            Console.Beep();
+                            selectedOption = (selectedOption - 1 + menuOptions.Count) % menuOptions.Count;
+                        }
                         break;
 
-                    case ConsoleKey.UpArrow:
-                        Console.Beep();
-                        selectedOption = (selectedOption + 2) % menuOptions.Count;
+                    case ConsoleKey.DownArrow:
+
+                        if (selectedOption < menuOptions.Count - 1)
+                        {
+                            Console.Beep();
+                            selectedOption = (selectedOption + 1) % menuOptions.Count;
+                        }
+
                         break;
-                        
+
                 }
             } while (key.Key != ConsoleKey.Enter);
 
@@ -203,14 +212,23 @@ namespace BankNET.Utilities
 
                 switch (key.Key)
                 {
-                    case ConsoleKey.DownArrow:
-                        Console.Beep();
-                        selectedOption = (selectedOption - 2 + menuOptions.Count) % menuOptions.Count;
+                    case ConsoleKey.UpArrow:
+                        
+                        if(selectedOption > 0)
+                        {
+                            Console.Beep();
+                            selectedOption = (selectedOption - 1 + menuOptions.Count) % menuOptions.Count;
+                        }
                         break;
 
-                    case ConsoleKey.UpArrow:
-                        Console.Beep();
-                        selectedOption = (selectedOption + 2) % menuOptions.Count;
+                    case ConsoleKey.DownArrow:
+                        
+                        if (selectedOption < menuOptions.Count - 1)
+                        {
+                            Console.Beep();
+                            selectedOption = (selectedOption + 1) % menuOptions.Count;
+                        }
+                        
                         break;
 
                 }
@@ -266,7 +284,7 @@ namespace BankNET.Utilities
 
             MenuUI.ClearAndPrintFooter();
             
-            Console.Write("Enter new account name: ");
+            Console.Write("\n    Enter new account name: ");
 
             string newAccountName = Console.ReadLine();
                 
@@ -284,8 +302,8 @@ namespace BankNET.Utilities
                 DbHelpers.CreateNewAccount(context, newAccountName, newAccountNumber, user);
 
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"Successfully created new account with account name: {newAccountName}\n" +
-                    $"Your account number is {newAccountNumber}");
+                Console.WriteLine($"\n\t\t   Account created!\n" +
+                    $"\t   Your account number is {newAccountNumber}");
 
                 Thread.Sleep(2000);
             }
