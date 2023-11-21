@@ -60,8 +60,9 @@ namespace BankNET.Utilities
         // Checks pin of user
         public static bool SimplePinCheck(BankContext context, string confirmation, string username)
         {
+            Console.Write("\n");
             Console.Write(confirmation); // add text that asks for pin
-            string pincheck = Console.ReadLine();
+            string pincheck = MenuUI.EnterPinHidden();
 
             bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pincheck));
             if (validPin)

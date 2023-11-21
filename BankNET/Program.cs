@@ -12,20 +12,35 @@ namespace BankNET
     {
         static void Main(string[] args)
         {
+            // Hides cursor for a cleaner look. Will be made visible whenever user is asked for input to make it more clear and user friendly.
             Console.CursorVisible = false;
+
+            // Sets encoding to unicode which is needed to display some special characters.
             Console.OutputEncoding = System.Text.Encoding.Unicode;
+
+            // Creates new context for interacting with the database.
             using BankContext context = new BankContext();
+
+            MenuUI.ClearAndPrintFooter();
             
-            MenuUI.LoginScreen(context);
-               
-            // Add welcome-screen
+            AdminFunctions.CreateAdmin(context);
 
-            // Add login interface. Logging out from an account should bring you back here.
+            bool runProgram = true;
+            while (runProgram)
+            {
+                // Runs the login method.
+                string username = LogInLogOut.Login(context);
 
-            // Add methods running either admin or user menus.
+                if (username == "admin")
+                {
+                    MainMenus.AdminMenu(context, username);
+                }
 
-            // Add methods running either admin or user menus.
-
+                else
+                {
+                    MainMenus.UserMainMenu(context, username);
+                }
+            }           
         }
     }
 }
