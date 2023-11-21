@@ -21,7 +21,7 @@ namespace BankNET.Utilities
         // Add method for adding users.
 
 
-        public static bool AddUser (BankContext context, User user)
+        internal static bool AddUser (BankContext context, User user)
         {
             context.Users.Add(user);
             try
@@ -35,7 +35,7 @@ namespace BankNET.Utilities
             }
             return true;
         }
-        public static bool DeleteUser(BankContext context, User user)
+        internal static bool DeleteUser(BankContext context, User user)
         {
             var userToDelete = context.Users
                 .SingleOrDefault(u => u.UserName == user.UserName);
@@ -61,7 +61,7 @@ namespace BankNET.Utilities
         }
 
         // Method for saving new accounts to the database.
-        public static void CreateNewAccount(BankContext context, string accountName, string accountNumber, User user)
+        internal static void CreateNewAccount(BankContext context, string accountName, string accountNumber, User user)
         {
             Account newAccount = new Account
             {
@@ -76,19 +76,34 @@ namespace BankNET.Utilities
         }
 
         // Transfers money between two accounts belonging to the same users.
-        public static void TransferInternal(BankContext context, Account accountSending, Account accountReceiving, decimal ammountToTransfer)
+        internal static void TransferInternal(BankContext context, Account accountSending, Account accountReceiving, decimal ammountToTransfer)
         {
             accountSending.Balance -= ammountToTransfer;
             accountReceiving.Balance += ammountToTransfer;
             context.SaveChanges();
 
-            MenuUI.ClearAndPrintFooter();
-            Console.WriteLine($"Transfer successful! Updated account balances: \n" +
-                $"{accountSending.AccountName}: {accountSending.Balance}\n"+
-                $"{accountReceiving.AccountName}: {accountReceiving.Balance}");
 
+
+            Sounds.PlaySuccessSound();
+
+            MenuUI.ClearAndPrintFooter();
+
+            Console.WriteLine($"Transfer successful! Updated account balances: \n" +
+                $"{accountSending.AccountName}: {accountSending.Balance,2}\n"+
+                $"{accountReceiving.AccountName}: {accountReceiving.Balance,2}");
             Thread.Sleep(2000);
         }
 
+        internal static void TransferExternal(BankContext context, Account sendingAccount, Account receivingAccount, decimal transferAmount)
+        {
+            sendingAccount.Balance -= transferAmount;
+            receivingAccount.Balance += transferAmount;
+            context.SaveChanges();
+
+            Console.Clear();
+            Sounds.PlaySuccessSound();
+            Console.WriteLine($"Transaction successful! \nYou transferred {transferAmount,2} SEK from {sendingAccount.AccountName} to {receivingAccount.AccountName}.");
+            Thread.Sleep(2000);
+        }
     }
 }
