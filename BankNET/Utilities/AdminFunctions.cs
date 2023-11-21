@@ -31,7 +31,10 @@ namespace BankNET.Utilities
                 Console.Write("\n\t Enter new username: ");
 
                 Console.CursorVisible = true;
+
                 newUsername = Console.ReadLine();
+                Console.Beep();
+
                 Console.CursorVisible = false;
 
                 if (string.IsNullOrWhiteSpace(newUsername))
@@ -39,8 +42,8 @@ namespace BankNET.Utilities
                     MenuUI.ClearAndPrintFooter();
                     Console.WriteLine("\n\t   Username cannot be blank.");
                     Thread.Sleep(2000);
-                }               
-                else if (users.Any(user => user.UserName == newUsername.ToLower()))
+                }
+                else if (users.Any(user => user.UserName.ToLower() == newUsername.ToLower()))
                 {
                     MenuUI.ClearAndPrintFooter();
                     Console.WriteLine("\n  Username already exists. Please try again.");
@@ -71,14 +74,14 @@ namespace BankNET.Utilities
             if (success)
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t Created user with username: {newUsername}, and pin: {pin}.");
+                Console.WriteLine($"\n\t Created user {newUsername} with PIN: {pin}");
                 Thread.Sleep(3000);
             }
             else
             {
                 MenuUI.ClearAndPrintFooter();
                 Console.WriteLine($"\n\t Failed to create user with username {newUsername}.");
-                Console.ReadLine();
+                Thread.Sleep(2000);
             }
         }
 
@@ -114,9 +117,12 @@ namespace BankNET.Utilities
             bool runMenu = true;
             while (runMenu)
             {
-                Console.Write("Enter name to view user or 'r' to return to menu: ");
+                Console.Write("Enter name to view user / 'r' to return: ");
                 Console.CursorVisible = true;
+
                 string userSelect = Console.ReadLine();
+                Console.Beep();
+
                 Console.CursorVisible = false;
 
                 MenuUI.ClearAndPrintFooter();
@@ -140,9 +146,9 @@ namespace BankNET.Utilities
                     foreach (var u in userSelection)
                     {
                         Console.WriteLine(
-                            $"Username: {u.UserName}," +
+                            $"Username: {u.UserName}" +
                             $"\tPin: ****" +
-                            $"\r\nAccounts: {u.AccountCount} \tTotal balance: {u.TotalBalance,2} SEK");
+                            $"\r\nAccounts: {u.AccountCount} \t        Total balance: {u.TotalBalance,2} SEK");
                     }
 
                     var userAccounts = context.Users
@@ -166,7 +172,7 @@ namespace BankNET.Utilities
                 }
                 else
                 {
-                    Console.WriteLine("User not found. Please try again.");
+                    Console.WriteLine("\n\t   User not found. Please try again.");
                     Thread.Sleep(2000);
                     break;
                 }
@@ -202,9 +208,10 @@ namespace BankNET.Utilities
                         {
                             Console.Write($"{menuOptions[i]}");
                         }
-                    } 
-
+                    }
+                    
                     key = Console.ReadKey();
+                    Console.Beep();
 
                     // Overwrites only the 3 rows with options, so that the information above remains.
                     Console.SetCursorPosition(0, originalTop + 1);
@@ -219,12 +226,10 @@ namespace BankNET.Utilities
                     switch (key.Key)
                     {
                         case ConsoleKey.DownArrow:
-                            Console.Beep();
                             selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
                             break;
 
                         case ConsoleKey.UpArrow:
-                            Console.Beep();
                             selectedOption = (selectedOption + 2) % menuOptions.Length;
                             break;
 
@@ -261,6 +266,8 @@ namespace BankNET.Utilities
             Console.Write("Please enter admin pin to view user pin: "); // add text that asks for pin
             if (BankHelpers.SimplePinCheck(context, adminName))
             {
+                Console.Beep();
+
                 var user = context.Users
                     .FirstOrDefault(u => u.UserName == userSelect);
                 if (user != null)
@@ -276,7 +283,9 @@ namespace BankNET.Utilities
                     }
 
                     Console.WriteLine("\n\n\t       Press ENTER to continue");
+                   
                     Console.ReadKey();
+                    Console.Beep();
                 }
                 else
                 {
@@ -304,7 +313,7 @@ namespace BankNET.Utilities
                             if (success)
                             {
                                 MenuUI.ClearAndPrintFooter();
-                                Console.WriteLine($"\n    Deleted user {userToDelete.UserName} and any connected accounts.");
+                                Console.WriteLine($"\n   Deleted user {userToDelete.UserName} and any connected accounts.");
                                 Thread.Sleep(2000);
                             }
                             else
@@ -335,7 +344,7 @@ namespace BankNET.Utilities
         }
 
         // Checks if 'admin' user exists, if not, creates one.
-        internal static void CreateAdmin(BankContext context)
+        internal static void GenerateAdmin(BankContext context)
         {
             bool adminAccountExists = false;
             foreach (var account in context.Users)
@@ -356,7 +365,7 @@ namespace BankNET.Utilities
                 if (adminCreated)
                 {
                     Console.WriteLine("\n\t     Administrator account created");
-                    Console.Write("\n\t      Username: admin  Pin9: 1234");
+                    Console.Write("\n\t      Username: admin  Pin: 1234");
                     Thread.Sleep(3000);
                 }
             }            

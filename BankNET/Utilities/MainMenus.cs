@@ -80,19 +80,18 @@ namespace BankNET.Utilities
 
                         Console.WriteLine();
                     }
-
+                    
                     key = Console.ReadKey();
+                    Console.Beep();
 
                     // Update selected option based on arrow key input.
                     switch (key.Key)
                     {
                         case ConsoleKey.UpArrow:
-                            Console.Beep();
                             selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
                             break;
 
                         case ConsoleKey.DownArrow:
-                            Console.Beep();
                             selectedOption = (selectedOption + 2) % menuOptions.Length;
                             break;
 
@@ -100,7 +99,6 @@ namespace BankNET.Utilities
                             if (selectedOption % 2 == 1 && selectedOption > 0)
                             {
                                 // Move left only if the selected option is on the right and not on the first column.
-                                Console.Beep();
                                 selectedOption = (selectedOption - 1) % menuOptions.Length;
                             }
                             break;
@@ -109,7 +107,6 @@ namespace BankNET.Utilities
                             if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
                             {
                                 // Move right only if the selected option is on the left and there's an option on the right.
-                                Console.Beep();
                                 selectedOption = (selectedOption + 1) % menuOptions.Length;
                             }
                             break;
@@ -190,18 +187,17 @@ namespace BankNET.Utilities
                             Console.WriteLine($"\n\t{menuOptions[i]}");
                         }
                     }
-
+                
                     key = Console.ReadKey();
+                    Console.Beep();
 
                     switch (key.Key)
                     {
                         case ConsoleKey.DownArrow:
-                            Console.Beep();
                             selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
                             break;
 
                         case ConsoleKey.UpArrow:
-                            Console.Beep();
                             selectedOption = (selectedOption + 2) % menuOptions.Length;
                             break;
 

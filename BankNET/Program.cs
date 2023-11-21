@@ -23,7 +23,7 @@ namespace BankNET
 
             MenuUI.ClearAndPrintFooter();
             
-            AdminFunctions.CreateAdmin(context);
+            AdminFunctions.GenerateAdmin(context);
 
             bool runProgram = true;
             while (runProgram)

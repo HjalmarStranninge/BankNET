@@ -37,6 +37,5 @@ namespace BankNET.Utilities
             Console.Write("Returning to main menu...");
             Thread.Sleep(2000);
         }
-
     }
 }

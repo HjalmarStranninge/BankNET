@@ -56,8 +56,9 @@ namespace BankNET.Utilities
                         Console.WriteLine($"{menuOptions[i].AccountNumber} {menuOptions[i].AccountName}\nBalance: {menuOptions[i].Balance,2} SEK");
                     }
                 }
-
+                
                 key = Console.ReadKey();
+                Console.Beep();
 
                 switch (key.Key)
                 {
@@ -65,7 +66,6 @@ namespace BankNET.Utilities
 
                         if (selectedOption > 0)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption - 1 + menuOptions.Count) % menuOptions.Count;
                         }
                         break;
@@ -74,7 +74,6 @@ namespace BankNET.Utilities
 
                         if (selectedOption < menuOptions.Count - 1)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption + 1) % menuOptions.Count;
                         }
 
@@ -86,8 +85,7 @@ namespace BankNET.Utilities
             // Save chosen account.
             if (key.Key == ConsoleKey.Enter)
             {
-                sendingAccount = menuOptions[selectedOption];
-                
+                sendingAccount = menuOptions[selectedOption];               
             }
 
             do
@@ -111,8 +109,9 @@ namespace BankNET.Utilities
                         Console.WriteLine($"{menuOptions[i].AccountNumber} {menuOptions[i].AccountName}\nBalance: {menuOptions[i].Balance,2} SEK");
                     }
                 }
-
+              
                 key = Console.ReadKey();
+                Console.Beep();
 
                 switch (key.Key)
                 {
@@ -120,7 +119,6 @@ namespace BankNET.Utilities
 
                         if (selectedOption > 0)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption - 1 + menuOptions.Count) % menuOptions.Count;
                         }
                         break;
@@ -129,7 +127,6 @@ namespace BankNET.Utilities
 
                         if (selectedOption < menuOptions.Count - 1)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption + 1) % menuOptions.Count;
                         }
 
@@ -182,7 +179,9 @@ namespace BankNET.Utilities
                 {
                     DbHelpers.TransferInternal(context, sendingAccount, receivingAccount, transferAmount);
                     Console.WriteLine("\n\t\tPress ENTER to continue");
+
                     Console.ReadLine();
+                    Console.Beep();
                 }
 
                 // Error message if there isn't enough balance.
@@ -243,8 +242,9 @@ namespace BankNET.Utilities
                         Console.WriteLine($"{menuOptions[i].AccountNumber} {menuOptions[i].AccountName}\nBalance: {menuOptions[i].Balance,2} SEK");
                     }
                 }
-
+               
                 key = Console.ReadKey();
+                Console.Beep();
 
                 switch (key.Key)
                 {
@@ -252,7 +252,6 @@ namespace BankNET.Utilities
 
                         if (selectedOption > 0)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption - 1 + menuOptions.Count) % menuOptions.Count;
                         }
                         break;
@@ -261,7 +260,6 @@ namespace BankNET.Utilities
 
                         if (selectedOption < menuOptions.Count - 1)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption + 1) % menuOptions.Count;
                         }
 
@@ -283,7 +281,10 @@ namespace BankNET.Utilities
             bool accountFound = false;
             
             Console.CursorVisible = true;
+
             string recipient = Console.ReadLine();
+            Console.Beep();
+
             Console.CursorVisible = false;
 
             foreach (var account in allAccounts)
@@ -309,7 +310,10 @@ namespace BankNET.Utilities
                     try
                     {
                         Console.CursorVisible = true;
+
                         transferAmount = decimal.Parse(Console.ReadLine());
+                        Console.Beep();
+
                         validInput = true;
                         Console.CursorVisible = false;
                     }

@@ -81,6 +81,7 @@ namespace BankNET.Utilities
                 }
 
                 key = Console.ReadKey();
+                Console.Beep();
 
                 switch (key.Key)
                 {
@@ -88,7 +89,6 @@ namespace BankNET.Utilities
 
                         if (selectedOption > 0)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption - 1 + menuOptions.Count) % menuOptions.Count;
                         }
                         break;
@@ -97,10 +97,8 @@ namespace BankNET.Utilities
 
                         if (selectedOption < menuOptions.Count - 1)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption + 1) % menuOptions.Count;
                         }
-
 
                         break;
 
@@ -120,6 +118,7 @@ namespace BankNET.Utilities
                 if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
                 {
                     InvalidInputHandling.InvalidWithdrawal("Invalid input for withdrawal amount. Withdrawal canceled.");
+                    Console.CursorVisible = false;
                     return;
                 }
 
@@ -127,6 +126,7 @@ namespace BankNET.Utilities
                 if (amount > selectedAccount.Balance)
                 {
                     InvalidInputHandling.InvalidWithdrawal("Insufficient balance. Withdrawal canceled.");
+                    Console.CursorVisible = false;
                     return;
                 }
 
@@ -138,24 +138,30 @@ namespace BankNET.Utilities
                 {
                     context.SaveChanges();
                     MenuUI.ClearAndPrintFooter();
-                    
+                    Console.CursorVisible = false;
+
                     Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
                     Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
-                    Console.WriteLine("\n\t\tPress ENTER to continue");
-
+                    Console.Write("\n\t\tPress ENTER to continue");
+                    
                     Console.ReadLine();
+                    Console.Beep();
+                    
                 }
               
                 // Handling any error that might occur during saving.
                 catch (Exception e)
                 {
                     MenuUI.ClearAndPrintFooter();
-                    
+                    Console.CursorVisible = false;
+
                     Console.WriteLine($"\nError saving changes to the database.");
                     Console.Write("Returning to the main menu...");
+
                     Thread.Sleep(2000);
+
                 }
-                Console.CursorVisible = false;
+                
             }
         }
 
@@ -202,8 +208,9 @@ namespace BankNET.Utilities
                         Console.WriteLine($"{menuOptions[i].AccountNumber} {menuOptions[i].AccountName}\nBalance: {menuOptions[i].Balance,2} SEK");
                     }
                 }
-
+                
                 key = Console.ReadKey();
+                Console.Beep();
 
                 switch (key.Key)
                 {
@@ -211,7 +218,6 @@ namespace BankNET.Utilities
                         
                         if(selectedOption > 0)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption - 1 + menuOptions.Count) % menuOptions.Count;
                         }
                         break;
@@ -220,7 +226,6 @@ namespace BankNET.Utilities
                         
                         if (selectedOption < menuOptions.Count - 1)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption + 1) % menuOptions.Count;
                         }
                         
@@ -247,23 +252,29 @@ namespace BankNET.Utilities
                     // Displaying the deposit details and updated balance.
                     try
                     {
+                        Console.CursorVisible = false;
                         MenuUI.ClearAndPrintFooter();
                         context.SaveChanges();                       
                         Console.WriteLine($"\nYou have deposited {amount,2} SEK into {selectedAccount.AccountName}.");
                         Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
-                        Console.WriteLine("\n\t\tPress ENTER to continue");
+                        Console.Write("\n\t\tPress ENTER to continue");
+                        
                         Console.ReadLine();
+                        Console.Beep();
+                        
                     }
 
                     // Handling any error that might occur during saving.
                     catch (Exception e)
-                    {                      
+                    {
+                        MenuUI.ClearAndPrintFooter();
+                        Console.CursorVisible = false;
                         Console.WriteLine($"\nError saving changes to the database.");
                         Console.Write("Returning to the main menu...");
                         Thread.Sleep(2000);
                     }
                 }             
-                Console.CursorVisible = false;
+                
             }
         }
 
@@ -280,6 +291,7 @@ namespace BankNET.Utilities
             MenuUI.ClearAndPrintFooter();
             
             Console.Write("\n    Enter new account name: ");
+            Console.CursorVisible = true;
 
             string newAccountName = Console.ReadLine();
                 
@@ -295,6 +307,7 @@ namespace BankNET.Utilities
             if (!string.IsNullOrWhiteSpace(newAccountName))
             {
                 DbHelpers.CreateNewAccount(context, newAccountName, newAccountNumber, user);
+                Console.CursorVisible = false;
 
                 MenuUI.ClearAndPrintFooter();
                 Console.WriteLine($"\n\t\t   Account created!\n" +
@@ -306,6 +319,7 @@ namespace BankNET.Utilities
             else
             {
                 MenuUI.ClearAndPrintFooter();
+                Console.CursorVisible = false;
                 Console.WriteLine("\t\tAccount name cannot be empty.");
 
                 Thread.Sleep(2000);
@@ -373,15 +387,15 @@ namespace BankNET.Utilities
                     }
                     Console.WriteLine();
                 }
-
+                
                 key = Console.ReadKey();
+                Console.Beep();
 
                 switch (key.Key)
                 {
                     case ConsoleKey.LeftArrow:
                         if (selectedOption % 2 == 1 && selectedOption > 0)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption - 1) % menuOptions.Length;
                         }
                         break;
@@ -389,7 +403,6 @@ namespace BankNET.Utilities
                     case ConsoleKey.RightArrow:
                         if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
                         {
-                            Console.Beep();
                             selectedOption = (selectedOption + 1) % menuOptions.Length;
                         }
                         break;
@@ -411,10 +424,8 @@ namespace BankNET.Utilities
                         Transfer.TransferExternal(context, username);
                         break;
                 }
-            }          
-         
+            }                   
         }
-
     }
 }
 

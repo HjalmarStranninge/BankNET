@@ -66,16 +66,16 @@ namespace BankNET.Utilities
                             }
                         }
                         Console.WriteLine();
-                    }
-
+                    }                                      
+                   
                     key = Console.ReadKey();
+                    Console.Beep();
 
                     switch (key.Key)
                     {                      
                         case ConsoleKey.LeftArrow:
                             if (selectedOption % 2 == 1 && selectedOption > 0)
                             {
-                                Console.Beep();
                                 selectedOption = (selectedOption - 1) % menuOptions.Length;
                             }
                             break;
@@ -83,7 +83,6 @@ namespace BankNET.Utilities
                         case ConsoleKey.RightArrow:
                             if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
                             {
-                                Console.Beep();
                                 selectedOption = (selectedOption + 1) % menuOptions.Length;
                             }
                             break;
@@ -106,15 +105,23 @@ namespace BankNET.Utilities
                                 Console.CursorVisible = true;
 
                                 Console.Write("\n\tEnter username: ");
+                                
                                 string username = Console.ReadLine();
+                                Console.CursorVisible = false;
+                                Console.Beep();
+                                
 
                                 Console.Write("\n\tEnter pin: ");
 
-                                ConsoleKeyInfo keyInfo;                                
-                                Console.CursorVisible = false;
+                                ConsoleKeyInfo keyInfo;
+
 
                                 // Checks if username and pin matches any users in the database.
+                                Console.CursorVisible = true;
                                 bool validUsernameAndPin = BankHelpers.SimplePinCheck(context, username);
+
+                                Console.CursorVisible = false;
+                                Console.Beep();
 
                                 // Returns username if everything checks out.
                                 if (validUsernameAndPin)
