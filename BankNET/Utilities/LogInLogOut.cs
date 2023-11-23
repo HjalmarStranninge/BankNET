@@ -9,12 +9,13 @@ namespace BankNET.Utilities
 {
     internal class LogInLogOut
     {
+        
         internal static string Login(BankContext context)
         {
             bool tryAgainLogin = true;
-            int loginAttempts = 0;
+            int loginAttempts = 3;
            
-            while (tryAgainLogin && loginAttempts < 3)
+            while (tryAgainLogin && loginAttempts > 1)
             {
                 int selectedOption = 0;
                 string[] menuOptions = { "Login", "Exit" };
@@ -97,7 +98,7 @@ namespace BankNET.Utilities
                     {
                         // Login user with username and pin. Returns username.
                         case 0:
-
+                            InvalidInputHandling.LockOutReleaseTimer();
                             bool loginSuccesful = false;
                             while (!loginSuccesful)
                             {
@@ -118,7 +119,7 @@ namespace BankNET.Utilities
 
                                     // Checks if username and pin matches any users in the database.
                                     Console.CursorVisible = true;
-                                    bool validUsernameAndPin = BankHelpers.SimplePinCheck(context, username);
+                                    bool validUsernameAndPin = BankHelpers.PinCheck(context, username);
 
                                     Console.CursorVisible = false;
                                     Console.Beep();
@@ -135,8 +136,8 @@ namespace BankNET.Utilities
                                     }
                                     else
                                     {
-                                        InvalidInputHandling.IncorrectLogin(loginAttempts);
-                                        loginAttempts++;
+                                        loginAttempts--;
+                                        InvalidInputHandling.IncorrectNameOrPin(loginAttempts, "\n\t    Invalid username and/or pin.");
                                     }
                                 }
                                 else

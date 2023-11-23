@@ -17,7 +17,7 @@ namespace BankNET.Utilities
     // Static class containing all functions available to the admin. 
     internal static class AdminFunctions
     {
-
+        static int pinCheckTries = 3;
         //Method for creating user
         internal static void CreateUser(BankContext context)
         {
@@ -261,7 +261,7 @@ namespace BankNET.Utilities
         {
             Console.Write("\n");
             Console.Write("Please enter admin pin to view user pin: "); // add text that asks for pin
-            if (BankHelpers.SimplePinCheck(context, adminName))
+            if (BankHelpers.PinCheck(context, adminName))
             {
                 Console.Beep();
 
@@ -298,13 +298,12 @@ namespace BankNET.Utilities
             {
                 Console.Write("\n");
                 Console.Write("Confirm user deletion with admin pin: ");
-                if (BankHelpers.SimplePinCheck(context, adminName))
+                if (BankHelpers.PinCheck(context, adminName))
                 {
                     var userToDelete = context.Users.FirstOrDefault(u => u.UserName == userSelect);
                     if (BankHelpers.CheckAccountBalanceZero(userAccounts))
                     {
-
-                        if (userToDelete != null)
+                        if (userToDelete != null) 
                         {
                             bool success = DbHelpers.DeleteUser(context, userToDelete);
                             if (success)
@@ -328,6 +327,18 @@ namespace BankNET.Utilities
                         Console.WriteLine("\n\t Some accounts have remaining balance.");
                         Thread.Sleep(2000);
                     }
+                }
+                else if (!BankHelpers.PinCheck(context, adminName) && pinCheckTries!=1) 
+                {
+                    MenuUI.ClearAndPrintFooter();
+                    pinCheckTries--;
+                    InvalidInputHandling.IncorrectNameOrPin(pinCheckTries, "\n\t            Incorrect pin.");
+                }
+                else if (!BankHelpers.PinCheck(context,adminName) && pinCheckTries == 1)
+                {
+                    MenuUI.ClearAndPrintFooter();
+                    InvalidInputHandling.LockOutUser(1);
+                    
                 }
                 
             }
@@ -367,11 +378,6 @@ namespace BankNET.Utilities
                 }
             }            
         }
-
-
-        //* adding function to check if user is logging in for first time, forcing them to change pin?
-        //* adding function for user to change pin, but not to a pin last used / used within the last 6 months?
-    
     }
 }
 
