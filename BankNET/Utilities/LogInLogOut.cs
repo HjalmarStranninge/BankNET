@@ -105,11 +105,10 @@ namespace BankNET.Utilities
                                 Console.CursorVisible = true;
 
                                 Console.Write("\n\tEnter username: ");
-                                
+
                                 string username = Console.ReadLine();
                                 Console.CursorVisible = false;
                                 Console.Beep();
-                                
 
                                 Console.Write("\n\tEnter pin: ");
 
