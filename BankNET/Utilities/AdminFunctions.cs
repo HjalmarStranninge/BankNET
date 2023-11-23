@@ -32,16 +32,15 @@ namespace BankNET.Utilities
 
                 Console.CursorVisible = true;
 
-                newUsername = Console.ReadLine();
-                Console.Beep();
-
+                newUsername = Console.ReadLine().Trim();
                 Console.CursorVisible = false;
-
+                Console.Beep();
                 if (string.IsNullOrWhiteSpace(newUsername))
                 {
                     MenuUI.ClearAndPrintFooter();
                     Console.WriteLine("\n\t   Username cannot be blank.");
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
+                    break;
                 }
                 else if (users.Any(user => user.UserName.ToLower() == newUsername.ToLower()))
                 {
@@ -49,40 +48,38 @@ namespace BankNET.Utilities
                     Console.WriteLine("\n  Username already exists. Please try again.");
                     Thread.Sleep(2000);
                 }
+            }
+            // Generating a random pin-code.
+            if (!string.IsNullOrWhiteSpace(newUsername))
+            {
+                Random random = new Random();
+                string pin = random.Next(0, 10000).ToString();
+                while (pin.Length < 4)
+                {
+                    pin = "0" + pin;
+                }
+
+                User newUser = new User()
+                {
+                    UserName = newUsername,
+                    Pin = pin
+                };
+
+                bool success = DbHelpers.AddUser(context, newUser); // Is this ever used?
+                if (success)
+                {
+                    MenuUI.ClearAndPrintFooter();
+                    Console.WriteLine($"\n\t Created user {newUsername} with PIN: {pin}");
+                    Thread.Sleep(3000);
+                }
                 else
                 {
-                    Console.WriteLine();
-                    break;
+                    MenuUI.ClearAndPrintFooter();
+                    Console.WriteLine($"\n\t Failed to create user with username {newUsername}.");
+                    Thread.Sleep(2000);
                 }
             }
-
-            // Generating a random pin-code.
-            Random random = new Random();
-            string pin = random.Next(0, 10000).ToString();
-            while (pin.Length < 4)
-            {
-                pin = "0" + pin;
-            }
-
-            User newUser = new User()
-            {
-                UserName = newUsername,
-                Pin = pin
-            };
-
-            bool success = DbHelpers.AddUser(context, newUser); // Is this ever used?
-            if (success)
-            {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t Created user {newUsername} with PIN: {pin}");
-                Thread.Sleep(3000);
-            }
-            else
-            {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t Failed to create user with username {newUsername}.");
-                Thread.Sleep(2000);
-            }
+            
         }
 
         //Method for viewing list of all users.

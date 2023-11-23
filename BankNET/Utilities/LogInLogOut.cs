@@ -110,35 +110,40 @@ namespace BankNET.Utilities
                                 Console.CursorVisible = false;
                                 Console.Beep();
 
-                                Console.Write("\n\tEnter pin: ");
-
-                                ConsoleKeyInfo keyInfo;
-
-
-                                // Checks if username and pin matches any users in the database.
-                                Console.CursorVisible = true;
-                                bool validUsernameAndPin = BankHelpers.SimplePinCheck(context, username);
-
-                                Console.CursorVisible = false;
-                                Console.Beep();
-
-                                // Returns username if everything checks out.
-                                if (validUsernameAndPin)
+                                if (username.Length != 0)
                                 {
-                                    Console.WriteLine("Login successful!");
-                                    tryAgainLogin = false;
+                                    Console.Write("\n\tEnter pin: ");
 
-                                    loginSuccesful = true;
-                                    return username;
-                                   
+                                    ConsoleKeyInfo keyInfo;
+
+                                    // Checks if username and pin matches any users in the database.
+                                    Console.CursorVisible = true;
+                                    bool validUsernameAndPin = BankHelpers.SimplePinCheck(context, username);
+
+                                    Console.CursorVisible = false;
+                                    Console.Beep();
+
+                                    // Returns username if everything checks out.
+                                    if (validUsernameAndPin)
+                                    {
+                                        Console.WriteLine("Login successful!");
+                                        tryAgainLogin = false;
+
+                                        loginSuccesful = true;
+                                        return username;
+
+                                    }
+                                    else
+                                    {
+                                        InvalidInputHandling.IncorrectLogin(loginAttempts);
+                                        loginAttempts++;
+                                    }
                                 }
                                 else
                                 {
-                                    InvalidInputHandling.IncorrectLogin(loginAttempts);
-                                    loginAttempts++;
-                                }                               
+                                    break;
+                                }        
                             }
-                            
                             break;
                             
                         // Exits the application
