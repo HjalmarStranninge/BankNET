@@ -140,8 +140,9 @@ namespace BankNET.Utilities
                     MenuUI.ClearAndPrintFooter();
                     Console.CursorVisible = false;
 
-                    Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
+                    Console.WriteLine($"\nYou have withdrawn {amount:F2} SEK from {selectedAccount.AccountName}");
                     Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
+                    Thread.Sleep(1000);
                     Console.Write("\n\t\tPress ENTER to continue");
                     
                     Console.ReadLine();
@@ -255,8 +256,9 @@ namespace BankNET.Utilities
                         Console.CursorVisible = false;
                         MenuUI.ClearAndPrintFooter();
                         context.SaveChanges();                       
-                        Console.WriteLine($"\nYou have deposited {amount,2} SEK into {selectedAccount.AccountName}.");
+                        Console.WriteLine($"\nYou have deposited {amount:F2} SEK into {selectedAccount.AccountName}.");
                         Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
+                        Thread.Sleep(1000);
                         Console.Write("\n\t\tPress ENTER to continue");
                         
                         Console.ReadLine();
@@ -313,7 +315,7 @@ namespace BankNET.Utilities
                 Console.WriteLine($"\n\t\t   Account created!\n" +
                     $"\t   Your account number is {newAccountNumber}");
 
-                Thread.Sleep(3000);
+                Thread.Sleep(2000);
             }
 
             else

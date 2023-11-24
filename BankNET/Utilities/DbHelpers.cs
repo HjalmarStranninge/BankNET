@@ -72,35 +72,5 @@ namespace BankNET.Utilities
             context.Accounts.Add(newAccount);
             context.SaveChanges();
         }
-
-        // Transfers money between two accounts belonging to the same users.
-        internal static void TransferInternal(BankContext context, Account accountSending, Account accountReceiving, decimal ammountToTransfer)
-        {
-            accountSending.Balance -= ammountToTransfer;
-            accountReceiving.Balance += ammountToTransfer;
-            context.SaveChanges();
-
-            //Sounds.PlaySuccessSound();
-            MenuUI.ClearAndPrintFooter();
-
-            Console.WriteLine($"Transfer successful! Updated account balances: \n" +
-                $"{accountSending.AccountName}: {accountSending.Balance,2} SEK\n"+
-                $"{accountReceiving.AccountName}: {accountReceiving.Balance,2} SEK");
-            Thread.Sleep(3000);
-        }
-
-        internal static void TransferExternal(BankContext context, Account sendingAccount, Account receivingAccount, decimal transferAmount)
-        {
-            sendingAccount.Balance -= transferAmount;
-            receivingAccount.Balance += transferAmount;
-            context.SaveChanges();
-
-            MenuUI.ClearAndPrintFooter();
-            //Sounds.PlaySuccessSound();
-            Console.WriteLine($"\n\t\tTransaction successful!");
-            Console.WriteLine($"\n\tAmount: {transferAmount,2} SEK");
-            Console.WriteLine($"\tSent from: {sendingAccount.AccountName} {sendingAccount.AccountNumber}");
-            Console.WriteLine($"\tRecipient: {receivingAccount.AccountName} {receivingAccount.AccountNumber}");
-        }
     }
 }

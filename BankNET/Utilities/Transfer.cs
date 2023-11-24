@@ -177,7 +177,7 @@ namespace BankNET.Utilities
 
                 if (BankHelpers.IsThereBalance(sendingAccount, transferAmount))
                 {
-                    DbHelpers.TransferInternal(context, sendingAccount, receivingAccount, transferAmount);
+                    TransferInternal(context, sendingAccount, receivingAccount, transferAmount);
                     Console.WriteLine("\n\t\tPress ENTER to continue");
 
                     Console.ReadLine();
@@ -329,7 +329,11 @@ namespace BankNET.Utilities
 
                 if (BankHelpers.IsThereBalance(sendingAccount, transferAmount))
                 {
-                    DbHelpers.TransferExternal(context, sendingAccount, receivingAccount, transferAmount);
+                    TransferExternal(context, sendingAccount, receivingAccount, transferAmount);
+                    Console.WriteLine("\n\t\tPress ENTER to continue");
+
+                    Console.ReadLine();
+                    Console.Beep();
                 }
 
                 // Error message if there isn't enough balance.
@@ -349,6 +353,37 @@ namespace BankNET.Utilities
 
                 Thread.Sleep(2000);
             }
+        }
+
+        // Transfers money between two accounts belonging to the same users.
+        internal static void TransferInternal(BankContext context, Account accountSending, Account accountReceiving, decimal ammountToTransfer)
+        {
+            accountSending.Balance -= ammountToTransfer;
+            accountReceiving.Balance += ammountToTransfer;
+            context.SaveChanges();
+
+            Sounds.PlaySuccessSound();
+            MenuUI.ClearAndPrintFooter();
+
+            Console.WriteLine($"Transfer successful! Updated account balances: \n" +
+                $"{accountSending.AccountName}: {accountSending.Balance,2} SEK\n" +
+                $"{accountReceiving.AccountName}: {accountReceiving.Balance,2} SEK");
+            Thread.Sleep(1000);
+        }
+
+        internal static void TransferExternal(BankContext context, Account sendingAccount, Account receivingAccount, decimal transferAmount)
+        {
+            sendingAccount.Balance -= transferAmount;
+            receivingAccount.Balance += transferAmount;
+            context.SaveChanges();
+
+            MenuUI.ClearAndPrintFooter();
+            Sounds.PlaySuccessSound();
+            Console.WriteLine($"\n\t\tTransaction successful!");
+            Console.WriteLine($"\n\tAmount: {transferAmount:F2} SEK");
+            Console.WriteLine($"\tSent from: {sendingAccount.AccountName} {sendingAccount.AccountNumber}");
+            Console.WriteLine($"\tRecipient: {receivingAccount.AccountName} {receivingAccount.AccountNumber}");
+            Thread.Sleep(1000);
         }
     }
 }
