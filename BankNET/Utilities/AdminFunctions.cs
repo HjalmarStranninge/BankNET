@@ -75,7 +75,7 @@ namespace BankNET.Utilities
                         TotalBalance = u.Accounts.Sum(a => a.Balance)
                     })
                     .ToList();
-
+                // if user viable this will list a summary of user and then the connected accounts
                 if (userSelection.Any())
                 {
                     foreach (var u in userSelection)
@@ -97,6 +97,7 @@ namespace BankNET.Utilities
                         Console.WriteLine($"{ua.AccountNumber}\t{ua.AccountName}\t{ua.Balance,2} SEK");
                     }
 
+                    //lists admin to user submenu of choices
                     AdminUserView(context, userSelect, adminName, userAccounts);
                     runMenu = false;
                 }
@@ -198,7 +199,8 @@ namespace BankNET.Utilities
         private static void ShowPin(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
             Console.Write("\n");
-            Console.Write("Please enter admin pin to view user pin: "); 
+            Console.Write("Please enter admin pin to view user pin: ");
+            // if pin matches admin pin then same user view is shown but with user pin instead of ****
             if (BankHelpers.PinCheck(context, adminName))
             {
                 Console.Beep();
@@ -271,8 +273,8 @@ namespace BankNET.Utilities
                     UserName = newUsername,
                     Pin = pin
                 };
-
-                bool success = DbHelpers.AddUser(context, newUser); // Is this ever used?
+                // AddUser sends user newUser to database
+                bool success = DbHelpers.AddUser(context, newUser);
                 if (success)
                 {
                     MenuUI.ClearAndPrintFooter();
@@ -288,7 +290,7 @@ namespace BankNET.Utilities
             }
         }
 
-        // Method for deleting user by confirming admin pin. Will only go through if accounts are zero.
+        // Method for deleting user by confirming admin pin.
         private static void DeleteUser(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
             if(userSelect != adminName)
@@ -297,6 +299,7 @@ namespace BankNET.Utilities
                 Console.Write("Confirm user deletion with admin pin: ");
                 if (BankHelpers.PinCheck(context, adminName))
                 {
+                    // if statements states that the sum of the users accounts balance need to be zero to be deleted
                     var userToDelete = context.Users.FirstOrDefault(u => u.UserName == userSelect);
                     if (BankHelpers.CheckAccountBalanceZero(userAccounts))
                     {
@@ -325,19 +328,20 @@ namespace BankNET.Utilities
                         Thread.Sleep(2000);
                     }
                 }
-                else if (!BankHelpers.PinCheck(context, adminName) && pinCheckTries!=1) 
+                // Admin pin is checked and will lock out after three failed tries
+                else if (!BankHelpers.PinCheck(context, adminName) && pinCheckTries>=1) 
                 {
                     MenuUI.ClearAndPrintFooter();
                     pinCheckTries--;
-                    InvalidInputHandling.IncorrectNameOrPin(pinCheckTries, "\n\t            Incorrect pin.", "\n\t Cannot delete user at the moment");
+                    InvalidInputHandling.IncorrectNameOrPin(pinCheckTries, "\n\t            Incorrect pin.", "\n\t    Number of tries exceeded.");
+
                 }
-                else if (!BankHelpers.PinCheck(context,adminName) && pinCheckTries == 1)
+                else if (InvalidInputHandling.IsLockedOut())
                 {
                     MenuUI.ClearAndPrintFooter();
                     InvalidInputHandling.LockOutUser(1, "Multiple incorrect tries have been made.");
-                    
+                    Thread.Sleep(2000);
                 }
-                
             }
             else
             {

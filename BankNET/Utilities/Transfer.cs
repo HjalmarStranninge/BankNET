@@ -175,7 +175,7 @@ namespace BankNET.Utilities
 
                 } while (!validInput);
 
-                if (BankHelpers.IsThereBalance(sendingAccount, transferAmount))
+                if (BankHelpers.IsThereBalance(sendingAccount, transferAmount, username))
                 {
                     TransferInternal(context, sendingAccount, receivingAccount, transferAmount);
                     Console.WriteLine("\n\t\tPress ENTER to continue");
@@ -327,13 +327,30 @@ namespace BankNET.Utilities
 
                 } while (!validInput);
 
-                if (BankHelpers.IsThereBalance(sendingAccount, transferAmount))
+                if (BankHelpers.IsThereBalance(sendingAccount, transferAmount, senderUsername))
                 {
-                    TransferExternal(context, sendingAccount, receivingAccount, transferAmount);
-                    Console.WriteLine("\n\t\tPress ENTER to continue");
+                    MenuUI.ClearAndPrintFooter();
 
-                    Console.ReadLine();
-                    Console.Beep();
+                    // User PIN confirmation needed after accepted transferAmount + sendingAccount found
+                    Console.Write("\n\tPlease enter PIN to confirm: ");
+                    Console.Write("\n\t");
+                    if (BankHelpers.PinCheck(context, senderUsername))
+                    {
+                        TransferExternal(context, sendingAccount, receivingAccount, transferAmount);
+                        Console.WriteLine("\n\t\tPress ENTER to continue");
+
+                        Console.ReadLine();
+                        Console.Beep();
+                    }
+                    else
+                    {
+                        MenuUI.ClearAndPrintFooter();
+                        Console.WriteLine("\n\t     Incorrect pin");
+                        Console.WriteLine("\n\t   Transfer unsuccessful");
+
+                        Console.ReadLine();
+                        Console.Beep();
+                    }
                 }
 
                 // Error message if there isn't enough balance.
