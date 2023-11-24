@@ -129,39 +129,49 @@ namespace BankNET.Utilities
                     Console.CursorVisible = false;
                     return;
                 }
-
-                // Update the account balance with the withdrawal.
-                selectedAccount.Balance -= amount;
-
-                // Displaying the withdrawal details and the updated balance.
-                try
+                Console.Write("Please enter PIN to confirm: ");
+                if (BankHelpers.PinCheck(context, username))
                 {
-                    context.SaveChanges();
-                    MenuUI.ClearAndPrintFooter();
-                    Console.CursorVisible = false;
+                    // Update the account balance with the withdrawal.
+                    selectedAccount.Balance -= amount;
 
-                    Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
-                    Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
-                    Console.Write("\n\t\tPress ENTER to continue");
-                    
-                    Console.ReadLine();
-                    Console.Beep();
-                    
+                    // Displaying the withdrawal details and the updated balance.
+                    try
+                    {
+                        context.SaveChanges();
+                        MenuUI.ClearAndPrintFooter();
+                        Console.CursorVisible = false;
+
+                        Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
+                        Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
+                        Console.Write("\n\t\tPress ENTER to continue");
+
+                        Console.ReadLine();
+                        Console.Beep();
+
+                    }
+
+                    // Handling any error that might occur during saving.
+                    catch (Exception e)
+                    {
+                        MenuUI.ClearAndPrintFooter();
+                        Console.CursorVisible = false;
+
+                        Console.WriteLine($"\nError saving changes to the database.");
+                        Console.Write("Returning to the main menu...");
+
+                        Thread.Sleep(2000);
+
+                    }
                 }
-              
-                // Handling any error that might occur during saving.
-                catch (Exception e)
+                else
                 {
-                    MenuUI.ClearAndPrintFooter();
                     Console.CursorVisible = false;
-
-                    Console.WriteLine($"\nError saving changes to the database.");
-                    Console.Write("Returning to the main menu...");
-
+                    MenuUI.ClearAndPrintFooter();
+                    Console.WriteLine("Incorrect PIN");
                     Thread.Sleep(2000);
-
+                    return;
                 }
-                
             }
         }
 
