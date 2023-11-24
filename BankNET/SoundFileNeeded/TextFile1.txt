@@ -1,0 +1,7 @@
+﻿For your program to work with the sounds we have, you need this soundfile. 
+Download the file and save it to a new folder on your computer.
+Change the path in the sounds class from my path to your path.
+It´s the code that starts with string successSoundFilePath....
+The path is where you have saved the file on your computer and will loke something like this: 
+		"C:\\Users\\sjood\\Downloads\\BankNET sounds\\Sounds_swish.wav"
+Enjoy the program with the sound effects working!
