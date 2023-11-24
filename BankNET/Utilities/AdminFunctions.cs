@@ -332,12 +332,12 @@ namespace BankNET.Utilities
                 {
                     MenuUI.ClearAndPrintFooter();
                     pinCheckTries--;
-                    InvalidInputHandling.IncorrectNameOrPin(pinCheckTries, "\n\t            Incorrect pin.");
+                    InvalidInputHandling.IncorrectNameOrPin(pinCheckTries, "\n\t            Incorrect pin.", "\n\t Cannot delete user at the moment");
                 }
                 else if (!BankHelpers.PinCheck(context,adminName) && pinCheckTries == 1)
                 {
                     MenuUI.ClearAndPrintFooter();
-                    InvalidInputHandling.LockOutUser(1);
+                    InvalidInputHandling.LockOutUser(1, "Multiple incorrect tries have been made.");
                     
                 }
                 

@@ -36,7 +36,7 @@ namespace BankNET
                     MainMenus.AdminMenu(context, username);
                 }
 
-                else
+                else if (!InvalidInputHandling.IsLockedOut())
                 {
                     MainMenus.UserMainMenu(context, username);
                 }

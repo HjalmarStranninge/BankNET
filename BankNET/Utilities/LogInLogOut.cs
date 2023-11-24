@@ -15,7 +15,7 @@ namespace BankNET.Utilities
             bool tryAgainLogin = true;
             int loginAttempts = 3;
            
-            while (tryAgainLogin && loginAttempts > 1)
+            while (tryAgainLogin)
             {
                 int selectedOption = 0;
                 string[] menuOptions = { "Login", "Exit" };
@@ -98,9 +98,8 @@ namespace BankNET.Utilities
                     {
                         // Login user with username and pin. Returns username.
                         case 0:
-                            InvalidInputHandling.LockOutReleaseTimer();
                             bool loginSuccesful = false;
-                            while (!loginSuccesful)
+                            while (!loginSuccesful && !InvalidInputHandling.IsLockedOut())
                             {
                                 MenuUI.ClearAndPrintFooter();
                                 Console.CursorVisible = true;
@@ -125,7 +124,7 @@ namespace BankNET.Utilities
                                     Console.Beep();
 
                                     // Returns username if everything checks out.
-                                    if (validUsernameAndPin)
+                                    if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut())
                                     {
                                         Console.WriteLine("Login successful!");
                                         tryAgainLogin = false;
@@ -137,7 +136,7 @@ namespace BankNET.Utilities
                                     else
                                     {
                                         loginAttempts--;
-                                        InvalidInputHandling.IncorrectNameOrPin(loginAttempts, "\n\t    Invalid username and/or pin.");
+                                        InvalidInputHandling.IncorrectNameOrPin(loginAttempts, "\n\t    Invalid username and/or pin.", "\n\t Multiple incorrect tries have been made.");
                                     }
                                 }
                                 else
@@ -145,6 +144,7 @@ namespace BankNET.Utilities
                                     break;
                                 }        
                             }
+                            InvalidInputHandling.IncorrectNameOrPin(loginAttempts, "\n\\t    Invalid username and/or pin.", "\n\t Multiple incorrect tries have been made."); 
                             break;
                             
                         // Exits the application
@@ -161,6 +161,7 @@ namespace BankNET.Utilities
                     }
                 }
             }
+
             return null;
         }
 
