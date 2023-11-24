@@ -37,7 +37,7 @@ namespace BankNET.Utilities
         }
 
         // Checks if an amount is bigger or smaller than the balance of an account.
-        public static bool IsThereBalance(Account account, decimal proposedAmount)
+        public static bool IsThereBalance(Account account, decimal proposedAmount, string senderUsername)
         {
             return account.Balance >= proposedAmount;
         }
@@ -54,6 +54,7 @@ namespace BankNET.Utilities
             }
             catch  
             {
+                Console.WriteLine();
                 return false;
             }
             

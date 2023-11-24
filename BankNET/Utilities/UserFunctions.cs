@@ -129,6 +129,7 @@ namespace BankNET.Utilities
                     Console.CursorVisible = false;
                     return;
                 }
+                // User PIN confirmation needed after accepted amount
                 Console.Write("Please enter PIN to confirm: ");
                 if (BankHelpers.PinCheck(context, username))
                 {
@@ -285,10 +286,8 @@ namespace BankNET.Utilities
                         Thread.Sleep(2000);
                     }
                 }             
-                
             }
         }
-
 
         // Method for creating new accounts.
         internal static void CreateNewAccount(BankContext context, string username)
