@@ -18,69 +18,6 @@ namespace BankNET.Utilities
     internal static class AdminFunctions
     {
         static int pinCheckTries = 3;
-        //Method for creating user
-        internal static void CreateUser(BankContext context)
-        {
-            string newUsername;
-            while (true)
-            {
-                List<User> users = DbHelpers.GetAllUsers(context);
-
-                MenuUI.ClearAndPrintFooter();
-                
-                Console.Write("\n\t Enter new username: ");
-
-                Console.CursorVisible = true;
-
-                newUsername = Console.ReadLine().Trim();
-                Console.CursorVisible = false;
-                Console.Beep();
-                if (string.IsNullOrWhiteSpace(newUsername))
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("\n\t   Username cannot be blank.");
-                    Thread.Sleep(1000);
-                    break;
-                }
-                else if (users.Any(user => user.UserName.ToLower() == newUsername.ToLower()))
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("\n  Username already exists. Please try again.");
-                    Thread.Sleep(2000);
-                }
-            }
-            // Generating a random pin-code.
-            if (!string.IsNullOrWhiteSpace(newUsername))
-            {
-                Random random = new Random();
-                string pin = random.Next(0, 10000).ToString();
-                while (pin.Length < 4)
-                {
-                    pin = "0" + pin;
-                }
-
-                User newUser = new User()
-                {
-                    UserName = newUsername,
-                    Pin = pin
-                };
-
-                bool success = DbHelpers.AddUser(context, newUser); // Is this ever used?
-                if (success)
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine($"\n\t Created user {newUsername} with PIN: {pin}");
-                    Thread.Sleep(3000);
-                }
-                else
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine($"\n\t Failed to create user with username {newUsername}.");
-                    Thread.Sleep(2000);
-                }
-            }
-            
-        }
 
         //Method for viewing list of all users.
         internal static void ViewUsers(BankContext context, string adminName)
@@ -260,7 +197,7 @@ namespace BankNET.Utilities
         private static void ShowPin(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
             Console.Write("\n");
-            Console.Write("Please enter admin pin to view user pin: "); // add text that asks for pin
+            Console.Write("Please enter admin pin to view user pin: "); 
             if (BankHelpers.PinCheck(context, adminName))
             {
                 Console.Beep();
@@ -289,6 +226,70 @@ namespace BankNET.Utilities
                     Console.WriteLine("\n\n\t          Wrong pin.");
                 }
             }
+        }
+
+        //Method for creating user
+        internal static void CreateUser(BankContext context)
+        {
+            string newUsername;
+            while (true)
+            {
+                List<User> users = DbHelpers.GetAllUsers(context);
+
+                MenuUI.ClearAndPrintFooter();
+
+                Console.Write("\n\t Enter new username: ");
+
+                Console.CursorVisible = true;
+
+                newUsername = Console.ReadLine().Trim();
+                Console.CursorVisible = false;
+                Console.Beep();
+                if (string.IsNullOrWhiteSpace(newUsername))
+                {
+                    MenuUI.ClearAndPrintFooter();
+                    Console.WriteLine("\n\t   Username cannot be blank.");
+                    Thread.Sleep(1000);
+                    break;
+                }
+                else if (users.Any(user => user.UserName.ToLower() == newUsername.ToLower()))
+                {
+                    MenuUI.ClearAndPrintFooter();
+                    Console.WriteLine("\n  Username already exists. Please try again.");
+                    Thread.Sleep(2000);
+                }
+            }
+            // Generating a random pin-code.
+            if (!string.IsNullOrWhiteSpace(newUsername))
+            {
+                Random random = new Random();
+                string pin = random.Next(0, 10000).ToString();
+                while (pin.Length < 4)
+                {
+                    pin = "0" + pin;
+                }
+
+                User newUser = new User()
+                {
+                    UserName = newUsername,
+                    Pin = pin
+                };
+
+                bool success = DbHelpers.AddUser(context, newUser); // Is this ever used?
+                if (success)
+                {
+                    MenuUI.ClearAndPrintFooter();
+                    Console.WriteLine($"\n\t Created user {newUsername} with PIN: {pin}");
+                    Thread.Sleep(3000);
+                }
+                else
+                {
+                    MenuUI.ClearAndPrintFooter();
+                    Console.WriteLine($"\n\t Failed to create user with username {newUsername}.");
+                    Thread.Sleep(2000);
+                }
+            }
+
         }
 
         // Method for deleting user by confirming admin pin. Will only go through if accounts are zero.
