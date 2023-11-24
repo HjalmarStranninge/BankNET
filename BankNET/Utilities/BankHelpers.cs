@@ -43,19 +43,20 @@ namespace BankNET.Utilities
         }
 
         // Checks pin of user
-        public static bool SimplePinCheck(BankContext context, string username)
+        public static bool PinCheck(BankContext context, string username)
         {
-            string pincheck = MenuUI.EnterPinHidden();
-
-            bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pincheck));
-            if (validPin)
+            try
             {
-                return true;
+                string pincheck = MenuUI.EnterPinHidden();
+
+                bool validPin = context.Users.Any(p => p.UserName.Equals(username) && p.Pin.Equals(pincheck));
+                return validPin;
             }
-            else
+            catch  
             {
                 return false;
             }
+            
         }
 
         // Check if any account has a balance greater than zero
