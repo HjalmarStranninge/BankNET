@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,26 +10,35 @@ namespace BankNET.Utilities
     // Class containing methods for handling invalid inputs
     internal class InvalidInputHandling
     {
-        internal static void IncorrectLogin(int i)
+        //static bool isLockedOut;
+        static DateTime lockoutTime;
+
+        internal static void IncorrectNameOrPin(int i, string pinFailMessage, string lockedOutMessage
+            )
         {
             MenuUI.ClearAndPrintFooter();
-            if (i == 0)
+            if (IsLockedOut())
             {
-                Console.WriteLine("\n\t    Invalid username and/or pin.");
+                Console.WriteLine("\n\t       Temporarily locked out.");
+                Console.WriteLine("\n\t Please try again in a couple of minutes.");
+                Thread.Sleep(2000);
+                return;
+            }
+            else if (i == 2)
+            {
+                Console.WriteLine(pinFailMessage);
                 Console.WriteLine("\n\t     You have 2 attempts left.");
                 Thread.Sleep(2000);
             }
             else if (i == 1)
             {
-                Console.WriteLine("\n\t    Invalid username and/or pin.");
+                Console.WriteLine(pinFailMessage);
                 Console.WriteLine("\n\t     You have 1 attempt left.");
                 Thread.Sleep(2000);
             }
             else
             {
-                Console.WriteLine("   Too many incorrect tries, program shutting down.");
-                Thread.Sleep(3000);
-                Environment.Exit(0);
+                LockOutUser(3, lockedOutMessage);
             }
         }
         internal static void InvalidWithdrawal(string message)
@@ -36,6 +46,17 @@ namespace BankNET.Utilities
             Console.WriteLine($"\n{message}");
             Console.Write("Returning to main menu...");
             Thread.Sleep(2000);
+        }
+        internal static void LockOutUser(int minutes, string lockedOutMessage)
+        {
+            lockoutTime = DateTime.Now.AddMinutes(minutes);
+            Console.WriteLine($"\n\t{lockedOutMessage}");
+            Console.WriteLine("\n\t      Temporarily locked out.");
+            Thread.Sleep(2000);
+        }
+        internal static bool IsLockedOut()
+        {
+            return DateTime.Now < lockoutTime;
         }
     }
 }
