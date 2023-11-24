@@ -305,7 +305,8 @@ namespace BankNET.Utilities
             Console.CursorVisible = true;
 
             string newAccountName = Console.ReadLine();
-                
+            Console.CursorVisible = false;
+
             // Generates a new account number and checks if it is unique. If it isn't, a new one is generated until it becomes unique.
             string newAccountNumber;
             do

@@ -55,6 +55,7 @@ namespace BankNET.Utilities
                 Console.CursorVisible = true;
 
                 string userSelect = Console.ReadLine();
+                Console.CursorVisible = false;
                 Console.Beep();
 
                 Console.CursorVisible = false;
@@ -231,36 +232,32 @@ namespace BankNET.Utilities
         //Method for creating user
         internal static void CreateUser(BankContext context)
         {
-            string newUsername;
-            while (true)
+        string newUsername;
+            List<User> users = DbHelpers.GetAllUsers(context);
+
+            MenuUI.ClearAndPrintFooter();
+
+            Console.Write("\n\t Enter new username: ");
+
+            Console.CursorVisible = true;
+
+            newUsername = Console.ReadLine().Trim();
+            Console.CursorVisible = false;
+            Console.Beep();
+            if (string.IsNullOrWhiteSpace(newUsername))
             {
-                List<User> users = DbHelpers.GetAllUsers(context);
-
                 MenuUI.ClearAndPrintFooter();
-
-                Console.Write("\n\t Enter new username: ");
-
-                Console.CursorVisible = true;
-
-                newUsername = Console.ReadLine().Trim();
-                Console.CursorVisible = false;
-                Console.Beep();
-                if (string.IsNullOrWhiteSpace(newUsername))
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("\n\t   Username cannot be blank.");
-                    Thread.Sleep(1000);
-                    break;
-                }
-                else if (users.Any(user => user.UserName.ToLower() == newUsername.ToLower()))
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("\n  Username already exists. Please try again.");
-                    Thread.Sleep(2000);
-                }
+                Console.WriteLine("\n\t   Username cannot be blank.");
+                Thread.Sleep(1000);
             }
+            else if (users.Any(user => user.UserName.ToLower() == newUsername.ToLower()))
+            {
+                MenuUI.ClearAndPrintFooter();
+                Console.WriteLine("\n  Username already exists. Please try again.");
+                Thread.Sleep(2000);
+            }
+            else
             // Generating a random pin-code.
-            if (!string.IsNullOrWhiteSpace(newUsername))
             {
                 Random random = new Random();
                 string pin = random.Next(0, 10000).ToString();
@@ -289,7 +286,6 @@ namespace BankNET.Utilities
                     Thread.Sleep(2000);
                 }
             }
-
         }
 
         // Method for deleting user by confirming admin pin. Will only go through if accounts are zero.
