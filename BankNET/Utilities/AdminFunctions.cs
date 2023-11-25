@@ -17,8 +17,6 @@ namespace BankNET.Utilities
     // Static class containing all functions available to the admin. 
     internal static class AdminFunctions
     {
-        static int pinCheckTries = 3;
-
         //Method for viewing list of all users.
         internal static void ViewUsers(BankContext context, string adminName)
         {
@@ -328,19 +326,11 @@ namespace BankNET.Utilities
                         Thread.Sleep(2000);
                     }
                 }
-                // Admin pin is checked and will lock out after three failed tries
-                else if (!BankHelpers.PinCheck(context, adminName) && pinCheckTries>=1) 
+                // Admin pin is checked
+                else if (!BankHelpers.PinCheck(context, adminName)) 
                 {
                     MenuUI.ClearAndPrintFooter();
-                    pinCheckTries--;
-                    InvalidInputHandling.IncorrectNameOrPin(pinCheckTries, "\n\t            Incorrect pin.", "\n\t    Number of tries exceeded.");
-
-                }
-                else if (InvalidInputHandling.IsLockedOut())
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    InvalidInputHandling.LockOutUser(1, "Multiple incorrect tries have been made.");
-                    Thread.Sleep(2000);
+                    Console.WriteLine("\n\t            Incorrect pin.");
                 }
             }
             else
