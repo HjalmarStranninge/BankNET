@@ -32,34 +32,10 @@ namespace BankNET.Utilities
                 // After third failed attempt LockOutUser will be called to lock out user.
                 int lockOutMinutes = 3;
                 LockOutUser(username, lockOutMinutes, lockedOutMessage);
+
                 // Resets the attempts
                 LogInLogOut.userLogInAttempts[username] = 0;
             }
-            //if (IsLockedOut())
-            //{
-            //    Console.WriteLine("\n\t       Temporarily locked out.");
-            //    Console.WriteLine("\n\t Please try again in a couple of minutes.");
-            //    Thread.Sleep(2000);
-            //    return;
-            //}
-            //else if (attemptsLeft == 2)
-            //{
-            //    Console.WriteLine(pinFailMessage);
-            //    Console.WriteLine("\n\t     You have 2 attempts left.");
-            //    Thread.Sleep(2000);
-            //}
-            //else if (attemptsLeft == 1)
-            //{
-            //    Console.WriteLine(pinFailMessage);
-            //    Console.WriteLine("\n\t     You have 1 attempt left.");
-            //    Thread.Sleep(2000);
-            //}
-            //else
-            //{
-            //    // After third failed attempt will call LockOutUser to lock out user.
-            //    int lockOutMinutes = 3;
-            //    LockOutUser(lockOutMinutes, lockedOutMessage);
-            //}
         }
         // Used with specified prompt during invalid user withdrawal.
         internal static void InvalidWithdrawal(string message)
@@ -74,6 +50,7 @@ namespace BankNET.Utilities
         {
             // Adds 3 minutes from now where the user is locked out
             DateTime lockoutTime = DateTime.Now.AddMinutes(lockOutMinutes);
+
             // Assigns the lockouttime to the specific username
             LogInLogOut.userLockOutTime[username] = lockoutTime;
 
