@@ -16,7 +16,7 @@ namespace BankNET.Utilities
     {
 
         // Prints a header with logo.
-        public static void PrintHeader()
+        internal static void PrintHeader()
         {
             Console.Write($"------------------- <> Bank");
             Console.ForegroundColor = ConsoleColor.Green;
@@ -26,7 +26,7 @@ namespace BankNET.Utilities
         }
 
         // Clears console and prints footer at the bottom before resetting cursor position.
-        public static void ClearAndPrintFooter()
+        internal static void ClearAndPrintFooter()
         {
             Console.Clear();
             Console.SetCursorPosition(0, 10);
@@ -36,17 +36,8 @@ namespace BankNET.Utilities
 
         }
 
-        public static void OverwriteLine(string content)
-        {
-            int currentLineCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, currentLineCursor);
-            Console.Write(new string(' ', Console.WindowWidth)); // Clear the line
-            Console.SetCursorPosition(0, currentLineCursor);
-            Console.Write(content);
-        }
-
         // Lets you enter your pin code while hiding it, showing star symbols instead.
-        public static string EnterPinHidden()
+        internal static string EnterPinHidden()
         {
             ConsoleKeyInfo keyInfo;
             string pin = "";

@@ -28,7 +28,7 @@ namespace BankNET.Utilities
             while (runProgram)
             {
                 // Runs the login method.
-                string username = LogInLogOut.Login(context);
+                string username = LogInLogOut.LogIn(context);
 
                 if (username == "admin")
                 {

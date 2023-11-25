@@ -3,6 +3,7 @@ using BankNET.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,10 +19,11 @@ namespace BankNET.Utilities
             return users;
         }
 
-        // Method for adding users.
+        // Method for trying to add user to database.
         internal static bool AddUser (BankContext context, User user)
         {
             context.Users.Add(user);
+            
             try
             {
                 context.SaveChanges();
@@ -33,6 +35,7 @@ namespace BankNET.Utilities
             }
             return true;
         }
+        // Method to try to delete user from database
         internal static bool DeleteUser(BankContext context, User user)
         {
             var userToDelete = context.Users

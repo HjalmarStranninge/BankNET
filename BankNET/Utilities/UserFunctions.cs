@@ -39,6 +39,9 @@ namespace BankNET.Utilities
         // Method for withdrawing money.
         internal static void Withdraw(BankContext context, string username)
         {
+            int attemptsLeft = 3;
+            bool validPin;
+
             User? user = context.Users
                 .Where(u => u.UserName == username)
                 .Include(u => u.Accounts)
@@ -108,71 +111,79 @@ namespace BankNET.Utilities
             // Perform action based on the selected option
             if (key.Key == ConsoleKey.Enter)
             {
+                bool invalidInputAmount = false;
+ 
                 Account selectedAccount = menuOptions[selectedOption];
                 MenuUI.ClearAndPrintFooter();
 
                 Console.CursorVisible = true;
                 Console.WriteLine($"{selectedAccount.AccountNumber} {selectedAccount.AccountName}\nBalance: {selectedAccount.Balance,2} SEK");
-                Console.WriteLine("\nHow much would you like to withdraw? ");               
-
-                if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
-                {
-                    InvalidInputHandling.InvalidWithdrawal("Invalid input for withdrawal amount. Withdrawal canceled.");
-                    Console.CursorVisible = false;
-                    return;
-                }
-
-                // Check if there is sufficient balance.
-                if (amount > selectedAccount.Balance)
-                {
-                    InvalidInputHandling.InvalidWithdrawal("Insufficient balance. Withdrawal canceled.");
-                    Console.CursorVisible = false;
-                    return;
-                }
-                // User PIN confirmation needed after accepted amount
-                Console.Write("Please enter PIN to confirm: ");
-                if (BankHelpers.PinCheck(context, username))
-                {
-                    // Update the account balance with the withdrawal.
-                    selectedAccount.Balance -= amount;
-
-                    // Displaying the withdrawal details and the updated balance.
-                    try
+                Console.WriteLine("\nHow much would you like to withdraw? ");
+                
+                // Loop to give correct response to user input on amount to withdraw
+                do 
+                { 
+                    if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
                     {
-                        context.SaveChanges();
-                        MenuUI.ClearAndPrintFooter();
+                        InvalidInputHandling.InvalidInputAmount();
                         Console.CursorVisible = false;
-
-                        Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
-                        Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
-                        Console.Write("\n\t\tPress ENTER to continue");
-
-                        Console.ReadLine();
-                        Console.Beep();
-
+                        invalidInputAmount = true;
                     }
-
-                    // Handling any error that might occur during saving.
-                    catch (Exception e)
+                    // If not sufficient balance, returns user to menu.
+                    if (amount > selectedAccount.Balance)
                     {
                         MenuUI.ClearAndPrintFooter();
-                        Console.CursorVisible = false;
-
-                        Console.WriteLine($"\nError saving changes to the database.");
-                        Console.Write("Returning to the main menu...");
-
+                        Console.WriteLine($"\n\nInsufficient balance. Withdrawal canceled.");
+                        Console.Write("Returning to main menu...");
                         Thread.Sleep(2000);
-
+                        Console.CursorVisible = false;
+                        return;
                     }
-                }
-                else
-                {
-                    Console.CursorVisible = false;
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine("Incorrect PIN");
-                    Thread.Sleep(2000);
-                    return;
-                }
+                    // Loop to make sure user cannot write wring pin more than 3 times
+                    do
+                    {
+                        // User PIN confirmation needed after accepted amount
+                        Console.Write("\nPlease enter PIN to confirm: ");
+                        validPin = BankHelpers.PinCheck(context, username);
+                        if (validPin)
+                        {
+                            // Update the account balance with the withdrawal.
+                            selectedAccount.Balance -= amount;
+
+                            // Displaying the withdrawal details and the updated balance.
+                            try
+                            {
+                                context.SaveChanges();
+                                MenuUI.ClearAndPrintFooter();
+                                Console.CursorVisible = false;
+
+                                Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
+                                Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
+                                Console.Write("\n\t\tPress ENTER to continue");
+
+                                Console.ReadLine();
+                                Console.Beep();
+                            }
+                            // Handling any error that might occur during saving.
+                            catch (Exception e)
+                            {
+                                MenuUI.ClearAndPrintFooter();
+                                Console.CursorVisible = false;
+
+                                Console.WriteLine($"\nError saving changes to the account.");
+                                Console.Write("Returning to the main menu...");
+
+                                Thread.Sleep(2000);
+                            }
+                        }
+                        else
+                        {
+                            attemptsLeft--;
+                            Console.CursorVisible = false;
+                            InvalidInputHandling.IncorrectNameOrPin(attemptsLeft, "\n\t            Incorrect pin.");
+                        }
+                    } while (attemptsLeft != 0 && !validPin);
+                } while (invalidInputAmount && attemptsLeft != 0);
             }
         }
 
@@ -244,104 +255,112 @@ namespace BankNET.Utilities
 
                 }
             } while (key.Key != ConsoleKey.Enter);
-
+            
             // Perform action based on the selected option
             if (key.Key == ConsoleKey.Enter)
             {
                 Account selectedAccount = menuOptions[selectedOption];
-                MenuUI.ClearAndPrintFooter();
+                //MenuUI.ClearAndPrintFooter();
 
-                Console.CursorVisible = true;
-                Console.WriteLine($"{selectedAccount.AccountNumber} {selectedAccount.AccountName}\nBalance: {selectedAccount.Balance,2} SEK");
-                Console.WriteLine("\nHow much would you like to deposit? ");
-
-                if (decimal.TryParse(Console.ReadLine(), out decimal amount) && amount > 0)
+                bool invalidInput = true;
+                do
                 {
-                    // Updating the balance with the deposit.
-                    selectedAccount.Balance += amount;
+                    MenuUI.ClearAndPrintFooter();
+                    Console.CursorVisible = true;
+                    Console.WriteLine($"{selectedAccount.AccountNumber} {selectedAccount.AccountName}\nBalance: {selectedAccount.Balance,2} SEK");
+                    Console.Write("\nHow much would you like to deposit? ");
+                    string userInputDeposit = Console.ReadLine();
 
-                    // Displaying the deposit details and updated balance.
-                    try
-                    {
-                        Console.CursorVisible = false;
-                        MenuUI.ClearAndPrintFooter();
-                        context.SaveChanges();                       
-                        Console.WriteLine($"\nYou have deposited {amount:F2} SEK into {selectedAccount.AccountName}.");
-                        Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
-                        Thread.Sleep(1000);
-                        Console.Write("\n\t\tPress ENTER to continue");
-                        
-                        Console.ReadLine();
-                        Console.Beep();
-                        
-                    }
+                    Console.CursorVisible = false;
+                    MenuUI.ClearAndPrintFooter();
 
-                    // Handling any error that might occur during saving.
-                    catch (Exception e)
+                    if (decimal.TryParse(userInputDeposit, out decimal amount) && amount > 0)
                     {
-                        MenuUI.ClearAndPrintFooter();
-                        Console.CursorVisible = false;
-                        Console.WriteLine($"\nError saving changes to the database.");
-                        Console.Write("Returning to the main menu...");
-                        Thread.Sleep(2000);
+                        // Updating the balance with the deposit.
+                        selectedAccount.Balance += amount;
+
+                        // Displaying the deposit details and updated balance.
+                        try
+                        {
+                            context.SaveChanges();
+                            Console.WriteLine($"\nYou have deposited {amount:F2} SEK into {selectedAccount.AccountName}.");
+                            Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
+                            Thread.Sleep(1000);
+                            Console.Write("\n\t\tPress ENTER to continue");
+
+                            Console.ReadLine();
+                            Console.Beep();
+                        }
+                        // Handling any error that might occur during saving.
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"\nError saving changes to the database.");
+                            Console.Write("Returning to the main menu...");
+                            Thread.Sleep(2000);
+                        }
+                        invalidInput = false;
                     }
-                }             
-            }
+                    // Writes out that the input is invalid and makes sure the loop is still going.
+                    else
+                    {
+                        InvalidInputHandling.InvalidInputAmount();
+                        Console.Clear();
+                    }
+                } while (invalidInput);
+            } 
         }
 
         // Method for creating new accounts.
         internal static void CreateNewAccount(BankContext context, string username)
         {
-
             User? user = context.Users
                     .Where(u => u.UserName == username)
                     .Include(u => u.Accounts)
                     .SingleOrDefault();
-
-            MenuUI.ClearAndPrintFooter();
             
-            Console.Write("\n    Enter new account name: ");
-            Console.CursorVisible = true;
+            bool accountNameIsNull = true;
 
-            string newAccountName = Console.ReadLine();
-            Console.CursorVisible = false;
-
-            // Generates a new account number and checks if it is unique. If it isn't, a new one is generated until it becomes unique.
-            string newAccountNumber;
+            // Checks if the proposed name that the user enter isn't null. If it isn't, a new account is created.
             do
             {
-                newAccountNumber = BankHelpers.GenerateAccountNumber();
-
-            } while (!BankHelpers.IsAccountNumberUnique(newAccountNumber));
-
-            // Checks if the proposed name that the user entered isn't null. If it isn't, a new account is created.
-            if (!string.IsNullOrWhiteSpace(newAccountName))
-            {
-                DbHelpers.CreateNewAccount(context, newAccountName, newAccountNumber, user);
-                Console.CursorVisible = false;
-
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t\t   Account created!\n" +
-                    $"\t   Your account number is {newAccountNumber}");
-
-                Thread.Sleep(2000);
-            }
-
-            else
-            {
-                MenuUI.ClearAndPrintFooter();
-                Console.CursorVisible = false;
-                Console.WriteLine("\t\tAccount name cannot be empty.");
-
-                Thread.Sleep(2000);
-            }
             
+                Console.Write("\n    Enter new account name: ");
+                Console.CursorVisible = true;
+
+                string newAccountName = Console.ReadLine();
+                Console.CursorVisible = false;
+
+                accountNameIsNull = string.IsNullOrWhiteSpace(newAccountName);
+
+                MenuUI.ClearAndPrintFooter();
+                Console.CursorVisible = false;
+                if (!accountNameIsNull)
+                {
+                    // Generates a new account number and checks if it is unique. If it isn't, a new one is generated until it becomes unique.
+                    string newAccountNumber;
+                    do
+                    {
+                        newAccountNumber = BankHelpers.GenerateAccountNumber();
+
+                    } while (!BankHelpers.IsAccountNumberUnique(newAccountNumber));
+                    DbHelpers.CreateNewAccount(context, newAccountName, newAccountNumber, user);
+
+                    Console.WriteLine($"\n\t\t   Account created!\n" +
+                        $"\t   Your account number is {newAccountNumber}");
+                    Thread.Sleep(3000);
+                    accountNameIsNull = false;
+                }
+                else
+                {
+                    InvalidInputHandling.InvalidInputName();
+                }
+            } while (accountNameIsNull);
         }
 
         // Method for transferring money. User can choose whether they want to transfer between their own accounts or to another user.
         internal static void TransferOptions(BankContext context, string username)
         {
-
             User? user = context.Users
             .Include(u => u.Accounts)
             .FirstOrDefault(u => u.UserName == username);

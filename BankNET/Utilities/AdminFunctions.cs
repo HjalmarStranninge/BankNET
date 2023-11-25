@@ -17,12 +17,13 @@ namespace BankNET.Utilities
     // Static class containing all functions available to the admin. 
     internal static class AdminFunctions
     {
-        static int pinCheckTries = 3;
+        static bool validAdminPin;
 
-        //Method for viewing list of all users.
+        //Method for viewing list of all users and number of users.
         internal static void ViewUsers(BankContext context, string adminName)
         {
-            while (true)
+            bool runMenu = true;
+            while (runMenu)
             {
                 MenuUI.ClearAndPrintFooter();
                 List<User> users = DbHelpers.GetAllUsers(context);
@@ -40,17 +41,13 @@ namespace BankNET.Utilities
                 }
                 Console.WriteLine("---");
 
-                SelectUser(context, adminName);
-                break;
+                runMenu = SelectUser(context, adminName);
             }
         }
 
-        //Selects user and shows accounts connected. Leads into Admin to user submenu
-        internal static void SelectUser(BankContext context, string adminName)
+        //Selects user and shows accounts connected. Leads admin to user submenu. Returns bool if user not found to print ViewUsers menu again.
+        internal static bool SelectUser(BankContext context, string adminName)
         {
-            bool runMenu = true;
-            while (runMenu)
-            {
                 Console.Write("Enter name to view user / 'r' to return: ");
                 Console.CursorVisible = true;
 
@@ -75,7 +72,8 @@ namespace BankNET.Utilities
                         TotalBalance = u.Accounts.Sum(a => a.Balance)
                     })
                     .ToList();
-                // if user viable this will list a summary of user and then the connected accounts
+
+                // If user viable this will list a summary of user and then the connected accounts
                 if (userSelection.Any())
                 {
                     foreach (var u in userSelection)
@@ -87,47 +85,49 @@ namespace BankNET.Utilities
                     }
 
                     var userAccounts = context.Users
-                    .Where(u => u.UserName == userSelect)
-                    .Include(u => u.Accounts)
-                    .Single()
-                    .Accounts
-                    .ToList();
+                        .Where(u => u.UserName == userSelect)
+                        .Include(u => u.Accounts)
+                        .Single()
+                        .Accounts
+                        .ToList();
+
                     foreach (var ua in userAccounts)
                     {
                         Console.WriteLine($"{ua.AccountNumber}\t{ua.AccountName}\t{ua.Balance,2} SEK");
                     }
 
-                    //lists admin to user submenu of choices
+                    // Lists admin to user submenu of choices
                     AdminUserView(context, userSelect, adminName, userAccounts);
-                    runMenu = false;
+                    return false;
                 }
                 else if (userSelect == "r")
                 {
-                    runMenu = false;
-                    return;
+                    return false;
                 }
                 else
                 {
                     Console.WriteLine("\n\t   User not found. Please try again.");
                     Thread.Sleep(2000);
-                    break;
+                    return true;
                 }
-            }
+            
         }
         // Admin to user submenu. Brings along selected username and admin username.
         internal static void AdminUserView(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
             ConsoleKeyInfo key;
             bool runMenu = true;
-            while (runMenu)
+            while (runMenu && !InvalidInputHandling.IsLockedOut())
             {
                 int selectedOption = 0;
+
                 // Saving the current cursor position in a variable so we can return to it later.
                 int originalTop = Console.CursorTop;
                 string[] menuOptions = { "Show pin", "Delete user", "Exit" };
+
+                // Showing menu with the option to move between menu options with arrow keys until user chooses option with ENTER
                 do
                 {
-
                     for (int i = 0; i < menuOptions.Length; i++)
                     {
                         Console.SetCursorPosition(0, Console.CursorTop + 1); 
@@ -139,7 +139,6 @@ namespace BankNET.Utilities
                             Console.Write($"{menuOptions[i]}");
                             Console.ResetColor();
                         }
-
                         else
                         {
                             Console.Write($"{menuOptions[i]}");
@@ -189,26 +188,29 @@ namespace BankNET.Utilities
                         case 2:
                             runMenu = false;
                             break;
-
                     }
                 }
             }
         }
 
-        // Method for showing pin after confirming admin pin.
+        // Method for showing user pin after confirming with admin pin.
         private static void ShowPin(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
-            Console.Write("\n");
-            Console.Write("Please enter admin pin to view user pin: ");
-            // if pin matches admin pin then same user view is shown but with user pin instead of ****
-            if (BankHelpers.PinCheck(context, adminName))
+            // Declare variable to limit number of attempts admin can enter incorrect pin until lock out
+            int attemptsLeft = 3;
+            do
             {
-                Console.Beep();
+                Console.Write("\nPlease enter admin pin to view user pin: ");
 
-                var user = context.Users
-                    .FirstOrDefault(u => u.UserName == userSelect);
-                if (user != null)
+                validAdminPin = BankHelpers.PinCheck(context, adminName);
+
+                // If admin pin is correct then same user view is shown but with user pin instead of ****
+                if (validAdminPin)
                 {
+                    Console.Beep();
+
+                    var user = context.Users
+                        .FirstOrDefault(u => u.UserName == userSelect);
                     MenuUI.ClearAndPrintFooter();
 
                     Console.WriteLine($"\nUsername: {user.UserName} " +
@@ -218,138 +220,135 @@ namespace BankNET.Utilities
                     {
                         Console.WriteLine($"{ua.AccountNumber}\t{ua.AccountName}\t{ua.Balance} SEK");
                     }
-
                     Console.WriteLine("\n\n\t       Press ENTER to continue");
-                   
                     Console.ReadKey();
                     Console.Beep();
                 }
                 else
                 {
-                    Console.WriteLine("\n\n\t          Wrong pin.");
+                    attemptsLeft--;
+                    InvalidInputHandling.IncorrectNameOrPin(attemptsLeft, "\n\t            Incorrect pin.");
                 }
-            }
+            } while (!validAdminPin && !InvalidInputHandling.IsLockedOut());
         }
 
         //Method for creating user
         internal static void CreateUser(BankContext context)
         {
-        string newUsername;
             List<User> users = DbHelpers.GetAllUsers(context);
-
-            MenuUI.ClearAndPrintFooter();
-
-            Console.Write("\n\t Enter new username: ");
-
-            Console.CursorVisible = true;
-
-            newUsername = Console.ReadLine().Trim();
-            Console.CursorVisible = false;
-            Console.Beep();
-            if (string.IsNullOrWhiteSpace(newUsername))
+            bool usernameIsNull;
+            bool usernameAlreadyExists;
+            // Loop to make sure created user has valid username (not already existing/not null).
+            do
             {
                 MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("\n\t   Username cannot be blank.");
-                Thread.Sleep(1000);
-            }
-            else if (users.Any(user => user.UserName.ToLower() == newUsername.ToLower()))
-            {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine("\n  Username already exists. Please try again.");
-                Thread.Sleep(2000);
-            }
-            else
-            // Generating a random pin-code.
-            {
-                Random random = new Random();
-                string pin = random.Next(0, 10000).ToString();
-                while (pin.Length < 4)
-                {
-                    pin = "0" + pin;
-                }
 
-                User newUser = new User()
+                Console.Write("\n\t Enter new username: ");
+
+                Console.CursorVisible = true;
+
+                string newUsername = Console.ReadLine().Trim();
+                usernameIsNull = string.IsNullOrWhiteSpace(newUsername);
+                usernameAlreadyExists = users.Any(user => user.UserName.ToLower() == newUsername.ToLower());
+
+                Console.CursorVisible = false;
+                Console.Beep();
+                MenuUI.ClearAndPrintFooter();
+
+                if (usernameIsNull)
                 {
-                    UserName = newUsername,
-                    Pin = pin
-                };
-                // AddUser sends user newUser to database
-                bool success = DbHelpers.AddUser(context, newUser);
-                if (success)
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine($"\n\t Created user {newUsername} with PIN: {pin}");
-                    Thread.Sleep(3000);
+                    InvalidInputHandling.InvalidInputName();
                 }
-                else
+                else if (usernameAlreadyExists)
                 {
-                    MenuUI.ClearAndPrintFooter();
-                    Console.WriteLine($"\n\t Failed to create user with username {newUsername}.");
+                    Console.WriteLine("\n Username already exists. Please try again.");
                     Thread.Sleep(2000);
                 }
-            }
+                // Valid username tries to create a user with pin.
+                else
+                {
+                    usernameIsNull = false;
+                    usernameAlreadyExists = false;
+
+                    string pin = BankHelpers.GeneratePin();
+
+                    User newUser = new User()
+                    {
+                        UserName = newUsername,
+                        Pin = pin
+                    };
+
+                    // AddUser sends user newUser to database and print userinfo if success.
+                    bool success = DbHelpers.AddUser(context, newUser);
+
+                    MenuUI.ClearAndPrintFooter();
+
+                    if (success)
+                    {
+                        Console.WriteLine($"\n\t Created user {newUser.UserName} with PIN: {newUser.Pin}");
+                        Thread.Sleep(3000);
+                    }
+                }
+            } while (usernameIsNull || usernameAlreadyExists);
         }
 
         // Method for deleting user by confirming admin pin.
         private static void DeleteUser(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
-            if(userSelect != adminName)
-            {
-                Console.Write("\n");
-                Console.Write("Confirm user deletion with admin pin: ");
-                if (BankHelpers.PinCheck(context, adminName))
+            int attemptsLeft = 3;
+            do
+            { 
+                if (userSelect != adminName)
                 {
-                    // if statements states that the sum of the users accounts balance need to be zero to be deleted
-                    var userToDelete = context.Users.FirstOrDefault(u => u.UserName == userSelect);
-                    if (BankHelpers.CheckAccountBalanceZero(userAccounts))
+                    Console.Write("\n");
+                    Console.Write("Confirm user deletion with admin pin: ");
+                    bool validAdminPin = BankHelpers.PinCheck(context, adminName);
+                    
+                    if (validAdminPin)
                     {
-                        if (userToDelete != null) 
+                        // If statements states that the sum of the users accounts balance need to be zero to be deleted
+                        var userToDelete = context.Users.FirstOrDefault(u => u.UserName == userSelect);
+                        if (BankHelpers.CheckAccountBalanceZero(userAccounts))
                         {
-                            bool success = DbHelpers.DeleteUser(context, userToDelete);
-                            if (success)
+                            if (userToDelete != null)
                             {
-                                MenuUI.ClearAndPrintFooter();
-                                Console.WriteLine($"\n   Deleted user {userToDelete.UserName} and any connected accounts.");
-                                Thread.Sleep(2000);
-                            }
-                            else
-                            {
-                                MenuUI.ClearAndPrintFooter();
-                                Console.WriteLine($"\n      Failed to delete user with username {userToDelete.UserName}");
-                                Thread.Sleep(2000);
+                                bool success = DbHelpers.DeleteUser(context, userToDelete);
+                                if (success)
+                                {
+                                    MenuUI.ClearAndPrintFooter();
+                                    Console.WriteLine($"\n   Deleted user {userToDelete.UserName} and any connected accounts.");
+                                    Thread.Sleep(2000);
+                                }
+                                else
+                                {
+                                    MenuUI.ClearAndPrintFooter();
+                                    Console.WriteLine($"\n      Failed to delete user with username {userToDelete.UserName}");
+                                    Thread.Sleep(2000);
+                                }
                             }
                         }
+                        else
+                        {
+                            MenuUI.ClearAndPrintFooter();
+                            Console.WriteLine($"\n\t     Cannot delete user {userToDelete.UserName}");
+                            Console.WriteLine("\n\t Some accounts have remaining balance.");
+                            Thread.Sleep(2000);
+                        }
                     }
+                    // Admin pin is checked and will lock out after three failed attempts
                     else
                     {
-                        MenuUI.ClearAndPrintFooter();
-                        Console.WriteLine($"\n\t     Cannot delete user {userToDelete.UserName}");
-                        Console.WriteLine("\n\t Some accounts have remaining balance.");
-                        Thread.Sleep(2000);
+                        attemptsLeft--;
+                        InvalidInputHandling.IncorrectNameOrPin(attemptsLeft, "\n\t            Incorrect pin.");
                     }
                 }
-                // Admin pin is checked and will lock out after three failed tries
-                else if (!BankHelpers.PinCheck(context, adminName) && pinCheckTries>=1) 
+                else
                 {
                     MenuUI.ClearAndPrintFooter();
-                    pinCheckTries--;
-                    InvalidInputHandling.IncorrectNameOrPin(pinCheckTries, "\n\t            Incorrect pin.", "\n\t    Number of tries exceeded.");
-
-                }
-                else if (InvalidInputHandling.IsLockedOut())
-                {
-                    MenuUI.ClearAndPrintFooter();
-                    InvalidInputHandling.LockOutUser(1, "Multiple incorrect tries have been made.");
+                    Console.WriteLine($"\n\t     Admin user cannot be deleted.");
                     Thread.Sleep(2000);
                 }
-            }
-            else
-            {
-                MenuUI.ClearAndPrintFooter();
-                Console.WriteLine($"\n\t     Admin user cannot be deleted.");
-                Thread.Sleep(2000);
-            }
-
+            } while (!validAdminPin && !InvalidInputHandling.IsLockedOut()) ;
         }
 
         // Checks if 'admin' user exists, if not, creates one.

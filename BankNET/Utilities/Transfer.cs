@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace BankNET.Utilities
 {
+    // Class for transfer money options
     internal static class Transfer
     {
+        // Method for internal transfers, ie transfers within one user's accounts
         internal static void TransferInternal(BankContext context, string username)
         {
             User? user = context.Users
@@ -168,23 +170,32 @@ namespace BankNET.Utilities
                     catch (Exception ex)
                     {
                         MenuUI.ClearAndPrintFooter();
-
-                        Console.WriteLine("\n\t  Please enter a valid amount, numbers only.");
-                        Thread.Sleep(2000);
+                        InvalidInputHandling.InvalidInputAmount();
                     }
 
                 } while (!validInput);
 
                 if (BankHelpers.IsThereBalance(sendingAccount, transferAmount, username))
                 {
-                    TransferInternal(context, sendingAccount, receivingAccount, transferAmount);
+                    sendingAccount.Balance -= transferAmount;
+                    receivingAccount.Balance += transferAmount;
+                    context.SaveChanges();
+
+                    Sounds.PlaySuccessSound();
+                    MenuUI.ClearAndPrintFooter();
+
+                    Console.WriteLine($"Transfer successful! Updated account balances: \n" +
+                        $"{sendingAccount.AccountName}: {sendingAccount.Balance,2} SEK\n" +
+                        $"{receivingAccount.AccountName}: {receivingAccount.Balance,2} SEK");
+                    
+                    Thread.Sleep(1000);
                     Console.WriteLine("\n\t\tPress ENTER to continue");
 
                     Console.ReadLine();
                     Console.Beep();
                 }
 
-                // Error message if there isn't enough balance.
+                // Error message if there isn't enough funds.
                 else
                 {
                     MenuUI.ClearAndPrintFooter();
@@ -195,6 +206,7 @@ namespace BankNET.Utilities
             }
         }
 
+        // Method for external transfers, ie transfers between two users' accounts
         internal static void TransferExternal(BankContext context, string senderUsername)
         {
             User? user = context.Users
@@ -320,9 +332,7 @@ namespace BankNET.Utilities
                     catch (Exception ex)
                     {
                         MenuUI.ClearAndPrintFooter();
-
-                        Console.WriteLine("\n\t  Please enter a valid amount, numbers only.");
-                        Thread.Sleep(2000);
+                        InvalidInputHandling.InvalidInputAmount();
                     }
 
                 } while (!validInput);
@@ -336,7 +346,18 @@ namespace BankNET.Utilities
                     Console.Write("\n\t");
                     if (BankHelpers.PinCheck(context, senderUsername))
                     {
-                        TransferExternal(context, sendingAccount, receivingAccount, transferAmount);
+                        sendingAccount.Balance -= transferAmount;
+                        receivingAccount.Balance += transferAmount;
+                        context.SaveChanges();
+
+                        MenuUI.ClearAndPrintFooter();
+                        Sounds.PlaySuccessSound();
+                        Console.WriteLine($"\n\t\tTransaction successful!");
+                        Console.WriteLine($"\n\tAmount: {transferAmount:F2} SEK");
+                        Console.WriteLine($"\tSent from: {sendingAccount.AccountName} {sendingAccount.AccountNumber}");
+                        Console.WriteLine($"\tRecipient: {receivingAccount.AccountName} {receivingAccount.AccountNumber}");
+                        
+                        Thread.Sleep(1000);
                         Console.WriteLine("\n\t\tPress ENTER to continue");
 
                         Console.ReadLine();
@@ -352,7 +373,6 @@ namespace BankNET.Utilities
                         Console.Beep();
                     }
                 }
-
                 // Error message if there isn't enough balance.
                 else
                 {
@@ -362,7 +382,6 @@ namespace BankNET.Utilities
                     Thread.Sleep(2000);
                 }
             }
-
             else
             {
                 MenuUI.ClearAndPrintFooter();
@@ -370,37 +389,6 @@ namespace BankNET.Utilities
 
                 Thread.Sleep(2000);
             }
-        }
-
-        // Transfers money between two accounts belonging to the same users.
-        internal static void TransferInternal(BankContext context, Account accountSending, Account accountReceiving, decimal ammountToTransfer)
-        {
-            accountSending.Balance -= ammountToTransfer;
-            accountReceiving.Balance += ammountToTransfer;
-            context.SaveChanges();
-
-            Sounds.PlaySuccessSound();
-            MenuUI.ClearAndPrintFooter();
-
-            Console.WriteLine($"Transfer successful! Updated account balances: \n" +
-                $"{accountSending.AccountName}: {accountSending.Balance,2} SEK\n" +
-                $"{accountReceiving.AccountName}: {accountReceiving.Balance,2} SEK");
-            Thread.Sleep(1000);
-        }
-
-        internal static void TransferExternal(BankContext context, Account sendingAccount, Account receivingAccount, decimal transferAmount)
-        {
-            sendingAccount.Balance -= transferAmount;
-            receivingAccount.Balance += transferAmount;
-            context.SaveChanges();
-
-            MenuUI.ClearAndPrintFooter();
-            Sounds.PlaySuccessSound();
-            Console.WriteLine($"\n\t\tTransaction successful!");
-            Console.WriteLine($"\n\tAmount: {transferAmount:F2} SEK");
-            Console.WriteLine($"\tSent from: {sendingAccount.AccountName} {sendingAccount.AccountNumber}");
-            Console.WriteLine($"\tRecipient: {receivingAccount.AccountName} {receivingAccount.AccountNumber}");
-            Thread.Sleep(1000);
         }
     }
 }

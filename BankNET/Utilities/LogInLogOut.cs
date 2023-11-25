@@ -9,8 +9,8 @@ namespace BankNET.Utilities
 {
     internal class LogInLogOut
     {
-        
-        internal static string Login(BankContext context)
+        // Method for login to check if valid login credentials, and redirects to menu if login accepted
+        internal static string LogIn(BankContext context)
         {
             bool tryAgainLogin = true;
             int loginAttempts = 3;
@@ -96,7 +96,7 @@ namespace BankNET.Utilities
                 {
                     switch (selectedOption)
                     {
-                        // Login user with username and pin. Returns username.
+                        // Login user with username and pin. Returns username. Or if login failed, print that user is locked out.
                         case 0:
                             bool loginSuccesful = false;
                             while (!loginSuccesful && !InvalidInputHandling.IsLockedOut())
@@ -127,24 +127,29 @@ namespace BankNET.Utilities
                                     if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut())
                                     {
                                         Console.WriteLine("Login successful!");
-                                        tryAgainLogin = false;
-
-                                        loginSuccesful = true;
                                         return username;
-
                                     }
                                     else
                                     {
                                         loginAttempts--;
-                                        InvalidInputHandling. IncorrectNameOrPin(loginAttempts, "\n\t    Invalid username and/or pin.", "\n\t Multiple incorrect tries have been made.");
+                                        InvalidInputHandling.IncorrectNameOrPin(loginAttempts, "\n\t      Invalid username and/or pin.");
                                     }
                                 }
+                                // If user just presses enter without writing anything after "Enter username: " user returns to start page
                                 else
                                 {
                                     break;
-                                }        
+                                }
                             }
-                            InvalidInputHandling.IncorrectNameOrPin(loginAttempts, "\n\\t    Invalid username and/or pin.", "\n\t Multiple incorrect tries have been made."); 
+                            // If user is locked out, the following will be printed
+                            if (InvalidInputHandling.IsLockedOut())
+                            {
+                                MenuUI.ClearAndPrintFooter();
+                                Console.WriteLine($"\n\t    You are temporarily locked out.");
+                                Console.WriteLine("\n\t      Try again in a few minutes.");
+                                Thread.Sleep(2000);
+                                break;
+                            }
                             break;
                             
                         // Exits the application
@@ -161,9 +166,16 @@ namespace BankNET.Utilities
                     }
                 }
             }
-
             return null;
         }
 
+        // Method to log out user, returns to startpage
+        internal static bool LogOut()
+        {
+            MenuUI.ClearAndPrintFooter();
+            Console.WriteLine("\n\n\t   Logging you out. Please wait..");
+            Thread.Sleep(2000);
+            return false;
+        }
     }
 }
