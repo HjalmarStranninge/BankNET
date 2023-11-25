@@ -327,10 +327,11 @@ namespace BankNET.Utilities
                     }
                 }
                 // Admin pin is checked
-                else if (!BankHelpers.PinCheck(context, adminName)) 
+                else
                 {
                     MenuUI.ClearAndPrintFooter();
                     Console.WriteLine("\n\t            Incorrect pin.");
+                    Thread.Sleep(1000);
                 }
             }
             else
@@ -339,7 +340,6 @@ namespace BankNET.Utilities
                 Console.WriteLine($"\n\t     Admin user cannot be deleted.");
                 Thread.Sleep(2000);
             }
-
         }
 
         // Checks if 'admin' user exists, if not, creates one.
