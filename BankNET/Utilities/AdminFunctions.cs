@@ -326,7 +326,7 @@ namespace BankNET.Utilities
                         Thread.Sleep(2000);
                     }
                 }
-                // Admin pin is checked
+                // Screen when admin puts in incorrect PIN
                 else
                 {
                     MenuUI.ClearAndPrintFooter();

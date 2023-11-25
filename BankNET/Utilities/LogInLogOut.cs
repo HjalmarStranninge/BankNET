@@ -161,14 +161,8 @@ namespace BankNET.Utilities
                                         break;
                                     }
                                 }
-                                //else
-                                //{
-                                //    break;
-                                //}        
                             }
                             break;
-                            //InvalidInputHandling.IncorrectNameOrPin(username, loginAttempts, "\n\t    Invalid username and/or pin.", "\n\t Multiple incorrect tries have been made.");
-                            //break;
                             
                         // Exits the application
                         case 1:      
