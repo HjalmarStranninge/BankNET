@@ -13,16 +13,16 @@ namespace BankNET.Utilities
         static DateTime lockoutTime;
 
         // Method for displaying failed input and then locking user out. Counter is outside used together with calling the method.
-        internal static void IncorrectNameOrPin(string username, string pinFailMessage)
+        internal static void IncorrectNameOrPin(string username, int numberOfTries, string pinFailMessage)
         {
             MenuUI.ClearAndPrintFooter();
-            if (LogInLogOut.userLogInAttempts[username] == 1)
+            if (LogInLogOut.UserPinInputAttempts[username] == 1)
             {
                 Console.WriteLine(pinFailMessage);
                 Console.WriteLine("\n\t       You have 2 attempts left.");
                 Thread.Sleep(2000);
             }
-            else if (LogInLogOut.userLogInAttempts[username] == 2)
+            else if (LogInLogOut.UserPinInputAttempts[username] == 2)
             {
                 Console.WriteLine(pinFailMessage);
                 Console.WriteLine("\n\t       You have 1 attempt left.");
@@ -35,8 +35,31 @@ namespace BankNET.Utilities
                 LockOutUser(username, lockOutMinutes);
 
                 // Resets the attempts
-                LogInLogOut.userLogInAttempts[username] = 0;
+                LogInLogOut.UserPinInputAttempts[username] = 1;
             }
+        }
+        // Keeps track of pincheck/login attempts
+        internal static void AttemptsTracker(string username,int numberOfTries)
+        {
+            if (!LogInLogOut.UserPinInputAttempts.ContainsKey(username))
+            {
+                LogInLogOut.UserPinInputAttempts[username] = 1;
+            }
+            else if (InvalidInputHandling.IsLockedOut(username))
+            {
+                MenuUI.ClearAndPrintFooter();
+                Console.WriteLine($"\n\t   User {username} is temporarily locked out");
+                Console.WriteLine($"\n\t        Please try again later");
+                Thread.Sleep(2000);
+                return;
+            }
+            else
+            {
+                LogInLogOut.UserPinInputAttempts[username]++;
+            }
+
+            InvalidInputHandling.IncorrectNameOrPin(username, numberOfTries, "\n\t    Invalid username and/or pin.");
+            return; ;
         }
 
         // Locks user out from the moment this method is called and add (int minutes) to the time ate the moment. 
@@ -46,9 +69,9 @@ namespace BankNET.Utilities
             DateTime lockoutTime = DateTime.Now.AddMinutes(lockOutMinutes);
 
             // Assigns the lockouttime to the specific username
-            LogInLogOut.userLockOutTime[username] = lockoutTime;
+            LogInLogOut.UserLockOutTime[username] = lockoutTime;
 
-            Console.WriteLine("\n\t    Too many incorrect attempts.\"");
+            Console.WriteLine("\n\t    Too many incorrect attempts.");
             Console.WriteLine($"\n\t User {username} is temporarily locked out.");
             Thread.Sleep(2000);
             return;
@@ -56,7 +79,7 @@ namespace BankNET.Utilities
         // Method used for checking if user is still locked out
         internal static bool IsLockedOut(string username)
         {
-            return LogInLogOut.userLockOutTime.ContainsKey(username) && DateTime.Now < LogInLogOut.userLockOutTime[username];
+            return LogInLogOut.UserLockOutTime.ContainsKey(username) && DateTime.Now < LogInLogOut.UserLockOutTime[username];
         }
 
         // Method to handle invalid user input where amount of money is requested.

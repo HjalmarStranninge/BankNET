@@ -18,6 +18,7 @@ namespace BankNET.Utilities
     internal static class AdminFunctions
     {
         static bool validAdminPin;
+        static int numberOfTries = 1;
 
         //Method for viewing list of all users and number of users.
         internal static void ViewUsers(BankContext context, string adminName)
@@ -219,12 +220,14 @@ namespace BankNET.Utilities
                         Console.WriteLine($"{ua.AccountNumber}\t{ua.AccountName}\t{ua.Balance} SEK");
                     }
                     Console.WriteLine("\n\n\t       Press ENTER to continue");
+                    LogInLogOut.UserPinInputAttempts[adminName] = 0;
                     Console.ReadKey();
                     Console.Beep();
                 }
                 else
                 {
-                    InvalidInputHandling.IncorrectNameOrPin(adminName, "\n\t            Incorrect pin.");
+                    //InvalidInputHandling.IncorrectNameOrPin(adminName, "\n\t            Incorrect pin.");
+                    InvalidInputHandling.AttemptsTracker(adminName, numberOfTries);
                 }
             } while (!validAdminPin && !InvalidInputHandling.IsLockedOut(adminName));
         }
@@ -292,7 +295,6 @@ namespace BankNET.Utilities
         // Method for deleting user by confirming admin pin.
         private static void DeleteUser(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
         {
-            int attemptsLeft = 3;
             do
             { 
                 if (userSelect != adminName)
@@ -314,6 +316,7 @@ namespace BankNET.Utilities
                                 {
                                     MenuUI.ClearAndPrintFooter();
                                     Console.WriteLine($"\n   Deleted user {userToDelete.UserName} and any connected accounts.");
+                                    LogInLogOut.UserPinInputAttempts[adminName] = 0;
                                     Thread.Sleep(2000);
                                 }
                                 else
@@ -335,11 +338,11 @@ namespace BankNET.Utilities
                     // Admin pin is checked and will lock out after three failed attempts
                     else
                     {
-                        attemptsLeft--;
-                        InvalidInputHandling.IncorrectNameOrPin(adminName, "\n\t            Incorrect pin.");
+                        //attemptsLeft--;
+                        //InvalidInputHandling.IncorrectNameOrPin(adminName,numberOfTries, "\n\t            Incorrect pin.");
+                        InvalidInputHandling.AttemptsTracker(adminName, numberOfTries);
                     }
                 }
-
                 else
                 {
                     MenuUI.ClearAndPrintFooter();
