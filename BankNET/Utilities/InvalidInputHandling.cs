@@ -31,7 +31,7 @@ namespace BankNET.Utilities
             else
             {
                 // After third failed attempt LockOutUser will be called to lock out user.
-                int lockOutMinutes = 3;
+                int lockOutMinutes = 1;
                 LockOutUser(username, lockOutMinutes);
 
                 // Resets the attempts

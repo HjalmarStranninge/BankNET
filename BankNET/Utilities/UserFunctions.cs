@@ -16,6 +16,7 @@ namespace BankNET.Utilities
     {
         static int numberOfTries = 1;
 
+
         // Method for displaying user account/accounts name and balance.
         internal static void ViewAccountBalance(BankContext context, string username)
         {

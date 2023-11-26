@@ -13,6 +13,7 @@ namespace BankNET.Utilities
     // Class for transfer money options
     internal static class Transfer
     {
+        internal static int numberOfTries = 1;
         // Method for internal transfers, ie transfers within one user's accounts
         internal static void TransferInternal(BankContext context, string username)
         {
@@ -343,7 +344,6 @@ namespace BankNET.Utilities
 
                     // User PIN confirmation needed after accepted transferAmount + sendingAccount found
                     Console.Write("\n\tPlease enter PIN to confirm: ");
-                    Console.Write("\n\t");
                     if (BankHelpers.PinCheck(context, senderUsername))
                     {
                         sendingAccount.Balance -= transferAmount;
@@ -366,11 +366,9 @@ namespace BankNET.Utilities
                     else
                     {
                         MenuUI.ClearAndPrintFooter();
-                        Console.WriteLine("\n\t     Incorrect pin");
-                        Console.WriteLine("\n\t   Transfer unsuccessful");
-
-                        Console.ReadLine();
+                        InvalidInputHandling.AttemptsTracker(senderUsername, numberOfTries);
                         Console.Beep();
+                        Thread.Sleep(1000);
                     }
                 }
                 // Error message if there isn't enough balance.
