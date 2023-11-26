@@ -27,18 +27,8 @@ namespace BankNET.Utilities
             bool runProgram = true;
             while (runProgram)
             {
-                // Runs the login method.
-                string username = LogInLogOut.LogIn(context);
-
-                if (username == "admin")
-                {
-                    MainMenus.AdminMenu(context, username);
-                }
-
-                else
-                {
-                    MainMenus.UserMainMenu(context, username);
-                }
+                // Runs the Welcome Screen menu method.
+                MainMenus.WelcomeScreenMenu(context);
             }
         }
     }

@@ -12,6 +12,131 @@ namespace BankNET.Utilities
     // Class containing methods that print the different menus.
     internal static class MainMenus
     {
+        // Method for welcome screen menu when user starts the application
+        internal static void WelcomeScreenMenu(BankContext context)
+        {
+            bool tryAgainLogin = true;
+            int loginAttempts = 3;
+
+            while (tryAgainLogin)
+            {
+                int selectedOption = 0;
+                string[] menuOptions = { "Login", "Exit" };
+                ConsoleKeyInfo key;
+
+                // Prints menu UI and lets user choose either login or exit with arrow keys.
+                do
+                {
+                    MenuUI.ClearAndPrintFooter();
+
+                    Console.WriteLine("\n\t\t Welcome to BankNET!");
+                    Console.WriteLine("\t      Your trust - our priority\n");
+
+                    for (int i = 0; i < menuOptions.Length; i += 2)
+                    {
+                        Console.Write(" ");
+
+                        // Highlights the currently selected option.
+                        if (i == selectedOption)
+                        {
+                            Console.Write("\n\t    ");
+                            Console.BackgroundColor = ConsoleColor.Gray;
+                            Console.ForegroundColor = ConsoleColor.Black;
+
+                            Console.Write($"{menuOptions[i]}");
+                            Console.ResetColor();
+                            Console.Write($"".PadRight(23 - menuOptions[i].Length));
+                        }
+                        else
+                        {
+                            Console.Write("\n\t    ");
+                            Console.Write($"{menuOptions[i]}".PadRight(23));
+                        }
+
+                        if (i + 1 < menuOptions.Length)
+                        {
+                            Console.Write(" ");
+
+                            if (i + 1 == selectedOption)
+                            {
+                                Console.BackgroundColor = ConsoleColor.Gray;
+                                Console.ForegroundColor = ConsoleColor.Black;
+                                Console.Write($"{menuOptions[i + 1]}");
+                                Console.ResetColor();
+                            }
+                            else
+                            {
+                                Console.Write($"{menuOptions[i + 1]}");
+                            }
+                        }
+                        Console.WriteLine();
+                    }
+
+                    key = Console.ReadKey();
+                    Console.Beep();
+
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.LeftArrow:
+                            if (selectedOption % 2 == 1 && selectedOption > 0)
+                            {
+                                selectedOption = (selectedOption - 1) % menuOptions.Length;
+                            }
+                            break;
+
+                        case ConsoleKey.RightArrow:
+                            if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
+                            {
+                                selectedOption = (selectedOption + 1) % menuOptions.Length;
+                            }
+                            break;
+                    }
+
+                } while (key.Key != ConsoleKey.Enter);
+
+                // Perform action based on the selected option
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    switch (selectedOption)
+                    {
+                        // Login user with username and pin. Returns username. Or if too many failed login attempts, print that user is locked out.
+                        case 0:
+                            // If user is locked out, the following will be printed
+                            if (InvalidInputHandling.IsLockedOut())
+                            {
+                                MenuUI.ClearAndPrintFooter();
+                                Console.WriteLine($"\n\t    You are temporarily locked out.");
+                                Console.WriteLine("\n\t      Try again in a few minutes.");
+                                Thread.Sleep(2000);
+                            }
+                            // Calls log in function for user to log in
+                            string username = LogInLogOut.LogIn(context, loginAttempts);
+                            // Sends user to correct menu
+                            if (username == "admin")
+                            {
+                                MainMenus.AdminMenu(context, username);
+                            }
+                            else
+                            {
+                                MainMenus.UserMainMenu(context, username);
+                            }
+                            break;
+
+                        // Exits the application
+                        case 1:
+                            MenuUI.ClearAndPrintFooter();
+                            Console.WriteLine("\n\t   Thank you for using BankNET!");
+                            Thread.Sleep(1000);
+                            Console.WriteLine("\n\t      Exiting application...");
+                            Thread.Sleep(3000);
+
+                            Console.Clear();
+                            Environment.Exit(0);
+                            break;
+                    }
+                }
+            }
+        }    
         // Method for user menu after successful login
         internal static void UserMainMenu(BankContext context, string username)
         {

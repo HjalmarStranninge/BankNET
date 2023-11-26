@@ -74,7 +74,7 @@ namespace BankNET.Utilities
         // Method to handle invalid user input where account name/username is requested.
         internal static void InvalidInputName()
         {
-            Console.WriteLine("\n\n\t    Name cannot be empty, try again.");
+            Console.WriteLine("\n\n\t   Name cannot be empty, try again.");
             Thread.Sleep(2000);
         }
     }
