@@ -21,7 +21,7 @@ Welcome to BankNET! This project involves creating a user-friendly banking syste
 ## Functionality Highlights
 * View Accounts and Balance: Users get a printout of their accounts and balances.
 * Transfer between Accounts: Move funds between accounts securely.
-* Withdraw and Deposit: Conveniently withdraw or deposit money with PIN confirmation.
+* Withdraw and Deposit: Conveniently withdraw money with pin confirmation or deposit money.
 * Open New Account: Users can easily create new accounts with unique names.
 ## Getting Started
 1. Clone the project.
