@@ -342,6 +342,7 @@ namespace BankNET.Utilities
                         InvalidInputHandling.IncorrectNameOrPin(attemptsLeft, "\n\t            Incorrect pin.");
                     }
                 }
+
                 else
                 {
                     MenuUI.ClearAndPrintFooter();

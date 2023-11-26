@@ -1,4 +1,5 @@
 ﻿using BankNET.Data;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,11 @@ namespace BankNET.Utilities
 {
     internal class LogInLogOut
     {
+        // Dictionary of usernames that has entered the wrong pin with their number of tries
+        internal static Dictionary<string, int> userLogInAttempts = new Dictionary<string, int>();
+
+        internal static Dictionary<string, DateTime> userLockOutTime = new Dictionary<string, DateTime>();
+      
         // Method for login to check if valid login credentials, and redirects to menu if login accepted
         internal static string LogIn(BankContext context, int loginAttepmts)
         {
