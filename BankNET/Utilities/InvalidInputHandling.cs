@@ -45,7 +45,8 @@ namespace BankNET.Utilities
         private static void LockOutUser(int minutes)
         {
             lockoutTime = DateTime.Now.AddMinutes(minutes);
-            Console.WriteLine($"\n\n\t    Too many incorrect attempts.");
+            Console.WriteLine("\n\n\t    Too many incorrect attempts.");
+            Console.WriteLine("\n\t\tYou are locked out.");
             Thread.Sleep(2000);
             return;
         }
@@ -65,7 +66,7 @@ namespace BankNET.Utilities
         // Method to handle invalid user input where account name/username is requested.
         internal static void InvalidInputName()
         {
-            Console.WriteLine("\n\n\t    Name cannot be empty, try again.");
+            Console.WriteLine("\n\n\t   Name cannot be empty, try again.");
             Thread.Sleep(2000);
         }
     }
