@@ -226,7 +226,6 @@ namespace BankNET.Utilities
                 }
                 else
                 {
-                    //InvalidInputHandling.IncorrectNameOrPin(adminName, "\n\t            Incorrect pin.");
                     InvalidInputHandling.AttemptsTracker(adminName, numberOfTries);
                 }
             } while (!validAdminPin && !InvalidInputHandling.IsLockedOut(adminName));
@@ -338,8 +337,6 @@ namespace BankNET.Utilities
                     // Admin pin is checked and will lock out after three failed attempts
                     else
                     {
-                        //attemptsLeft--;
-                        //InvalidInputHandling.IncorrectNameOrPin(adminName,numberOfTries, "\n\t            Incorrect pin.");
                         InvalidInputHandling.AttemptsTracker(adminName, numberOfTries);
                     }
                 }
