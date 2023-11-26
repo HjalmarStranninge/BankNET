@@ -1,4 +1,5 @@
 ﻿using BankNET.Data;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,12 @@ namespace BankNET.Utilities
 {
     internal class LogInLogOut
     {
-        // Method for login to check if valid login credentials, and redirects to menu if login accepted
-        internal static string LogIn(BankContext context)
+        // Dictionary of usernames that has entered the wrong pin with their number of tries
+        internal static Dictionary<string, int> userLogInAttempts = new Dictionary<string, int>();
+
+        internal static Dictionary<string, DateTime> userLockOutTime = new Dictionary<string, DateTime>();
+
+        internal static string Login(BankContext context)
         {
             bool tryAgainLogin = true;
             int loginAttempts = 3;
@@ -99,7 +104,7 @@ namespace BankNET.Utilities
                         // Login user with username and pin. Returns username. Or if login failed, print that user is locked out.
                         case 0:
                             bool loginSuccesful = false;
-                            while (!loginSuccesful && !InvalidInputHandling.IsLockedOut())
+                            while (!loginSuccesful)
                             {
                                 MenuUI.ClearAndPrintFooter();
                                 Console.CursorVisible = true;
@@ -123,32 +128,36 @@ namespace BankNET.Utilities
                                     Console.CursorVisible = false;
                                     Console.Beep();
 
-                                    // Returns username if everything checks out.
-                                    if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut())
+                                    // Returns username if everything checks out. Will not accept users that are lockedout.
+                                    if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut(username))
                                     {
                                         Console.WriteLine("Login successful!");
                                         return username;
                                     }
+                                    // Adds an attempt to failed input to the username, writes a locked out message or adds an additional failed log in attempt.
                                     else
                                     {
-                                        loginAttempts--;
-                                        InvalidInputHandling.IncorrectNameOrPin(loginAttempts, "\n\t      Invalid username and/or pin.");
+                                        if (!userLogInAttempts.ContainsKey(username))
+                                        {
+                                            userLogInAttempts[username] = 1;
+                                        }
+                                        else if (InvalidInputHandling.IsLockedOut(username))
+                                        {
+                                            MenuUI.ClearAndPrintFooter();
+                                            Console.WriteLine($"\n\t   User {username} is temporarily locked out");
+                                            Console.WriteLine($"\n\t        Please try again later");
+                                            Thread.Sleep(2000);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            userLogInAttempts[username]++;
+                                        }
+                                        //loginAttempts--;
+                                        InvalidInputHandling.IncorrectNameOrPin(username, loginAttempts, "\n\t    Invalid username and/or pin.", "\n\t Multiple incorrect tries have been made.");
+                                        break;
                                     }
                                 }
-                                // If user just presses enter without writing anything after "Enter username: " user returns to start page
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                            // If user is locked out, the following will be printed
-                            if (InvalidInputHandling.IsLockedOut())
-                            {
-                                MenuUI.ClearAndPrintFooter();
-                                Console.WriteLine($"\n\t    You are temporarily locked out.");
-                                Console.WriteLine("\n\t      Try again in a few minutes.");
-                                Thread.Sleep(2000);
-                                break;
                             }
                             break;
                             
