@@ -101,7 +101,7 @@ namespace BankNET.Utilities
                 {
                     switch (selectedOption)
                     {
-                        // Login user with username and pin. Returns username.
+                        // Login user with username and pin. Returns username. Or if login failed, print that user is locked out.
                         case 0:
                             bool loginSuccesful = false;
                             while (!loginSuccesful)
@@ -132,9 +132,6 @@ namespace BankNET.Utilities
                                     if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut(username))
                                     {
                                         Console.WriteLine("Login successful!");
-                                        tryAgainLogin = false;
-
-                                        loginSuccesful = true;
                                         return username;
                                     }
                                     // Adds an attempt to failed input to the username, writes a locked out message or adds an additional failed log in attempt.
@@ -178,9 +175,16 @@ namespace BankNET.Utilities
                     }
                 }
             }
-
             return null;
         }
 
+        // Method to log out user, returns to startpage
+        internal static bool LogOut()
+        {
+            MenuUI.ClearAndPrintFooter();
+            Console.WriteLine("\n\n\t   Logging you out. Please wait..");
+            Thread.Sleep(2000);
+            return false;
+        }
     }
 }

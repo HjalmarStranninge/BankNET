@@ -12,17 +12,18 @@ namespace BankNET.Utilities
     // Class containing methods that print the different menus.
     internal static class MainMenus
     {
-        // Method for user main menu after successful login
+        // Method for user menu after successful login
         internal static void UserMainMenu(BankContext context, string username)
         {
             bool runMenu = true;
 
-            while (runMenu)
+            // Runs menu as long as user is not locked out or chooses to log out.
+            while (runMenu && !InvalidInputHandling.IsLockedOut())
             {
                 int selectedOption = 0;
 
                 // Array with menu options. 
-                string[] menuOptions = { "Accounts/Balance", "Transfer between accounts", "Withdrawal", "Deposit", "Open new account", "Log out" };
+                string[] userMenuOptions = { "Accounts/Balance", "Transfer between accounts", "Withdrawal", "Deposit", "Open new account", "Log out" };
 
                 // Key variable for navigating menu with arrow keys.
                 ConsoleKeyInfo key;
@@ -32,7 +33,7 @@ namespace BankNET.Utilities
                     MenuUI.ClearAndPrintFooter();
 
                     // Prints menu options and highlights the currently selected option.
-                    for (int i = 0; i < menuOptions.Length; i += 2)
+                    for (int i = 0; i < userMenuOptions.Length; i += 2)
                     {
                         Console.Write(" ");
 
@@ -40,27 +41,25 @@ namespace BankNET.Utilities
                         {
                             Console.BackgroundColor = ConsoleColor.Gray;
                             Console.ForegroundColor = ConsoleColor.Black;
-                            Console.Write($"{menuOptions[i]}");
+                            Console.Write($"{userMenuOptions[i]}");
                             Console.ResetColor();
 
                             // Adjusts padding depending on length of the word. The longest word is 16 characters long so the padding is based on that.
-                            if (menuOptions[i].Length == 16)
+                            if (userMenuOptions[i].Length == 16)
                             {
                                 Console.Write($"".PadRight(9));
                             }
                             else
                             {
-                                Console.Write($"".PadRight(25 - menuOptions[i].Length));
+                                Console.Write($"".PadRight(25 - userMenuOptions[i].Length));
                             }
-
-
                         }
                         else
                         {
-                            Console.Write($"{menuOptions[i]}".PadRight(25));
+                            Console.Write($"{userMenuOptions[i]}".PadRight(25));
                         }
 
-                        if (i + 1 < menuOptions.Length)
+                        if (i + 1 < userMenuOptions.Length)
                         {
                             Console.Write(" ");
 
@@ -68,13 +67,13 @@ namespace BankNET.Utilities
                             {
                                 Console.BackgroundColor = ConsoleColor.Gray;
                                 Console.ForegroundColor = ConsoleColor.Black;
-                                Console.Write($"{menuOptions[i + 1]}");
+                                Console.Write($"{userMenuOptions[i + 1]}");
                                 Console.ResetColor();
                                 Console.Write($"".PadRight(14));
                             }
                             else
                             {
-                                Console.Write($"{menuOptions[i + 1]}".PadRight(25));
+                                Console.Write($"{userMenuOptions[i + 1]}".PadRight(25));
                             }
                         }
 
@@ -88,26 +87,26 @@ namespace BankNET.Utilities
                     switch (key.Key)
                     {
                         case ConsoleKey.UpArrow:
-                            selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
+                            selectedOption = (selectedOption - 2 + userMenuOptions.Length) % userMenuOptions.Length;
                             break;
 
                         case ConsoleKey.DownArrow:
-                            selectedOption = (selectedOption + 2) % menuOptions.Length;
+                            selectedOption = (selectedOption + 2) % userMenuOptions.Length;
                             break;
 
                         case ConsoleKey.LeftArrow:
                             if (selectedOption % 2 == 1 && selectedOption > 0)
                             {
                                 // Move left only if the selected option is on the right and not on the first column.
-                                selectedOption = (selectedOption - 1) % menuOptions.Length;
+                                selectedOption = (selectedOption - 1) % userMenuOptions.Length;
                             }
                             break;
 
                         case ConsoleKey.RightArrow:
-                            if (selectedOption % 2 == 0 && selectedOption + 1 < menuOptions.Length)
+                            if (selectedOption % 2 == 0 && selectedOption + 1 < userMenuOptions.Length)
                             {
                                 // Move right only if the selected option is on the left and there's an option on the right.
-                                selectedOption = (selectedOption + 1) % menuOptions.Length;
+                                selectedOption = (selectedOption + 1) % userMenuOptions.Length;
                             }
                             break;
 
@@ -143,11 +142,8 @@ namespace BankNET.Utilities
                             break;
 
                         case 5:
-                            // Exit the application
-                            MenuUI.ClearAndPrintFooter();
-                            Console.WriteLine("\n\n\t   Logging you out. Please wait..");
-                            runMenu = false;
-                            Thread.Sleep(2000);
+                            // Returning to the start page
+                            runMenu = LogInLogOut.LogOut();
                             break;
                     }
                 }
@@ -162,29 +158,30 @@ namespace BankNET.Utilities
             // Key variable for navigating menu with arrow keys.
             ConsoleKeyInfo key;
 
-            while (runMenu)
+            while (runMenu && !InvalidInputHandling.IsLockedOut())
             {
                 int selectedOption = 0;
 
-                string[] menuOptions = { "View all users", "Create new user", "Log out" };
+                string[] adminMenuOptions = { "View all users", "Create new user", "Log out" };
+                // Showing menu with the option to move between menu options with arrow keys until user chooses option with ENTER
                 do
                 {
                     MenuUI.ClearAndPrintFooter();
 
-                    for (int i = 0; i < menuOptions.Length; i++)
+                    for (int i = 0; i < adminMenuOptions.Length; i++)
                     {
                         if (i == selectedOption)
                         {
                             Console.BackgroundColor = ConsoleColor.Gray;
                             Console.ForegroundColor = ConsoleColor.Black;
 
-                            Console.WriteLine($"\n\t{menuOptions[i]}");
+                            Console.WriteLine($"\n\t{adminMenuOptions[i]}");
                             Console.ResetColor();
                         }
 
                         else
                         {
-                            Console.WriteLine($"\n\t{menuOptions[i]}");
+                            Console.WriteLine($"\n\t{adminMenuOptions[i]}");
                         }
                     }
                 
@@ -194,16 +191,17 @@ namespace BankNET.Utilities
                     switch (key.Key)
                     {
                         case ConsoleKey.DownArrow:
-                            selectedOption = (selectedOption - 2 + menuOptions.Length) % menuOptions.Length;
+                            selectedOption = (selectedOption - 2 + adminMenuOptions.Length) % adminMenuOptions.Length;
                             break;
 
                         case ConsoleKey.UpArrow:
-                            selectedOption = (selectedOption + 2) % menuOptions.Length;
+                            selectedOption = (selectedOption + 2) % adminMenuOptions.Length;
                             break;
 
                     }
                 } while (key.Key != ConsoleKey.Enter);
 
+                // If user presses enter, the option highlighted in the menu is chosen
                 if (key.Key == ConsoleKey.Enter)
                 {
                     switch (selectedOption)
@@ -220,10 +218,7 @@ namespace BankNET.Utilities
 
                         case 2:
                             // Handle Option 3
-                            MenuUI.ClearAndPrintFooter();
-                            Console.WriteLine("\n\n\t   Logging you out. Please wait..");
-                            runMenu = false;
-                            Thread.Sleep(2000);
+                            runMenu = LogInLogOut.LogOut();
                             break;
 
                     }

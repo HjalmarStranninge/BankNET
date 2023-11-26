@@ -37,13 +37,26 @@ namespace BankNET.Utilities
         }
 
         // Checks if an amount is bigger or smaller than the balance of an account.
-        public static bool IsThereBalance(Account account, decimal proposedAmount, string senderUsername)
+        internal static bool IsThereBalance(Account account, decimal proposedAmount, string senderUsername)
         {
             return account.Balance >= proposedAmount;
         }
 
+        // Generates a radom pin and returns new pin
+        internal static string GeneratePin()
+        {
+            Random random = new Random();
+            string pin = random.Next(0, 10000).ToString();
+            while (pin.Length < 4)
+            {
+                pin = "0" + pin;
+            }
+
+            return pin;
+        }
+
         // Checks pin of user
-        public static bool PinCheck(BankContext context, string username)
+        internal static bool PinCheck(BankContext context, string username)
         {
             try
             {
@@ -61,7 +74,7 @@ namespace BankNET.Utilities
         }
 
         // Check if any account has a balance greater than zero
-        public static bool CheckAccountBalanceZero(List<Account> userAccounts)
+        internal static bool CheckAccountBalanceZero(List<Account> userAccounts)
         {
             return userAccounts.All(account => account.Balance == 0);
         }

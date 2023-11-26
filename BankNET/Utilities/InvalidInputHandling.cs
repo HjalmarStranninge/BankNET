@@ -11,6 +11,7 @@ namespace BankNET.Utilities
     internal class InvalidInputHandling
     {
         static DateTime lockoutTime;
+
         // Method for displaying failed input and then locking user out. Counter is outside used together with calling the method.
         internal static void IncorrectNameOrPin(string username,int attemptsLeft, string pinFailMessage, string lockedOutMessage)
         {
@@ -18,14 +19,19 @@ namespace BankNET.Utilities
             if (LogInLogOut.userLogInAttempts[username] == 1)
             {
                 Console.WriteLine(pinFailMessage);
-                Console.WriteLine("\n\t     You have 2 attempts left.");
+                Console.WriteLine("\n\t       You have 2 attempts left.");
                 Thread.Sleep(2000);
             }
             else if (LogInLogOut.userLogInAttempts[username] == 2)
             {
                 Console.WriteLine(pinFailMessage);
-                Console.WriteLine("\n\t     You have 1 attempt left.");
+                Console.WriteLine("\n\t       You have 1 attempt left.");
                 Thread.Sleep(2000);
+            }
+            // After third failed attempt will call LockOutUser to lock out user.
+            else if (attemptsLeft == 0) 
+            {
+                LockOutUser(3);
             }
             else
             {
@@ -36,13 +42,6 @@ namespace BankNET.Utilities
                 // Resets the attempts
                 LogInLogOut.userLogInAttempts[username] = 0;
             }
-        }
-        // Used with specified prompt during invalid user withdrawal.
-        internal static void InvalidWithdrawal(string message)
-        {
-            Console.WriteLine($"\n{message}");
-            Console.Write("Returning to main menu...");
-            Thread.Sleep(2000);
         }
 
         // Locks user out from the moment this method is called and add (int minutes) to the time ate the moment. 
@@ -57,11 +56,26 @@ namespace BankNET.Utilities
             Console.WriteLine($"\n\t{lockedOutMessage}");
             Console.WriteLine($"\n\t User {username} is temporarily locked out.");
             Thread.Sleep(2000);
+            return;
         }
         // Method used for checking if user is still locked out
         internal static bool IsLockedOut(string username)
         {
             return LogInLogOut.userLockOutTime.ContainsKey(username) && DateTime.Now < LogInLogOut.userLockOutTime[username];
+        }
+
+        // Method to handle invalid user input where amount of money is requested.
+        internal static void InvalidInputAmount()
+        {
+            Console.WriteLine("\n     Please enter a valid amount, numbers only.");
+            Thread.Sleep(2000);
+        }
+
+        // Method to handle invalid user input where account name/username is requested.
+        internal static void InvalidInputName()
+        {
+            Console.WriteLine("\n\n\t    Name cannot be empty, try again.");
+            Thread.Sleep(2000);
         }
     }
 }
