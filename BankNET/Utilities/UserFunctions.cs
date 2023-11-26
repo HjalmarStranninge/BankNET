@@ -14,6 +14,7 @@ namespace BankNET.Utilities
     // Static class containing methods for all functions available to regular users.
     internal static class UserFunctions
     {
+        static int numberOfTries = 1;
 
         // Method for displaying user account/accounts name and balance.
         internal static void ViewAccountBalance(BankContext context, string username)
@@ -61,7 +62,6 @@ namespace BankNET.Utilities
             // Displays the accounts and lets the user choose account using arrow keys.
             do
             {
-
                 MenuUI.ClearAndPrintFooter();
                 Console.WriteLine($"   Which account would you like to withdraw from?\n");
 
@@ -120,7 +120,7 @@ namespace BankNET.Utilities
                 
                 // Loop to give correct response to user input on amount to withdraw
                 do 
-                { 
+                {
                     if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
                     {
                         InvalidInputHandling.InvalidInputAmount();
@@ -137,7 +137,7 @@ namespace BankNET.Utilities
                         Console.CursorVisible = false;
                         return;
                     }
-                    // Loop to make sure user cannot write wring pin more than 3 times
+                    // Loop to make sure user cannot write wrong pin more than 3 times
                     do
                     {
                         // User PIN confirmation needed after accepted amount
@@ -158,6 +158,7 @@ namespace BankNET.Utilities
                                 Console.WriteLine($"\nYou have withdrawn {amount,2} SEK from {selectedAccount.AccountName}");
                                 Console.WriteLine($"Updated balance: {selectedAccount.Balance,2} SEK");
                                 Console.Write("\n\t\tPress ENTER to continue");
+                                LogInLogOut.UserPinInputAttempts[username] = 0;
 
                                 Console.ReadLine();
                                 Console.Beep();
@@ -177,7 +178,8 @@ namespace BankNET.Utilities
                         else
                         {
                             Console.CursorVisible = false;
-                            InvalidInputHandling.IncorrectNameOrPin(username, "\n\t            Incorrect pin.");
+                            //InvalidInputHandling.IncorrectNameOrPin(username, "\n\t            Incorrect pin.");
+                            InvalidInputHandling.AttemptsTracker(username, numberOfTries);
                         }
                     } while (!InvalidInputHandling.IsLockedOut(username) && !validPin);
                 } while (invalidInputAmount && !InvalidInputHandling.IsLockedOut(username));

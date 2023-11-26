@@ -11,16 +11,16 @@ namespace BankNET.Utilities
     internal class LogInLogOut
     {
         // Dictionary of usernames that has entered the wrong pin with their number of tries
-        internal static Dictionary<string, int> userLogInAttempts = new Dictionary<string, int>();
+        internal static Dictionary<string, int> UserPinInputAttempts = new Dictionary<string, int>();
 
-        internal static Dictionary<string, DateTime> userLockOutTime = new Dictionary<string, DateTime>();
-      
+        internal static Dictionary<string, DateTime> UserLockOutTime = new Dictionary<string, DateTime>();
+
         // Method for login to check if valid login credentials, and redirects to menu if login accepted
         internal static string LogIn(BankContext context)
         {
-            bool loginSuccesful = false;
+            bool loginSuccessful = false;
             int numberOfTries = 1;
-            while (!loginSuccesful)
+            while (!loginSuccessful)
             {
                 MenuUI.ClearAndPrintFooter();
                 Console.CursorVisible = true;
@@ -30,7 +30,6 @@ namespace BankNET.Utilities
                 string username = Console.ReadLine();
                 Console.CursorVisible = false;
                 Console.Beep();
-                userLogInAttempts.Add(username, numberOfTries);
 
                 if (username.Length != 0)
                 {
@@ -49,12 +48,13 @@ namespace BankNET.Utilities
                     if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut(username))
                     {
                         Console.WriteLine("Login successful!");
+                        UserPinInputAttempts[username] = 0;
                         return username;
                     }
+                    // Adds an attempt to failed input to the username, writes a locked out message or adds an additional failed log in attempt.
                     else
                     {
-                        InvalidInputHandling.IncorrectNameOrPin(username, "\n\t      Invalid username and/or pin.");
-                        numberOfTries++;
+                        InvalidInputHandling.AttemptsTracker(username, numberOfTries);
                     }
                 }
                 // If user just presses enter without writing anything after "Enter username: " user returns to start page
@@ -66,7 +66,6 @@ namespace BankNET.Utilities
             }
             return null;
         }
-
         // Method to log out user, returns to startpage
         internal static bool LogOut()
         {
