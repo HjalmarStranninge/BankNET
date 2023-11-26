@@ -39,7 +39,6 @@ namespace BankNET.Utilities
         // Method for withdrawing money.
         internal static void Withdraw(BankContext context, string username)
         {
-            int attemptsLeft = 3;
             bool validPin;
 
             User? user = context.Users
@@ -76,7 +75,6 @@ namespace BankNET.Utilities
                         Console.WriteLine($"{menuOptions[i].AccountNumber} {menuOptions[i].AccountName}\nBalance: {menuOptions[i].Balance,2} SEK");
                         Console.ResetColor();
                     }
-
                     else
                     {
                         Console.WriteLine($"{menuOptions[i].AccountNumber} {menuOptions[i].AccountName}\nBalance: {menuOptions[i].Balance,2} SEK");
@@ -178,12 +176,11 @@ namespace BankNET.Utilities
                         }
                         else
                         {
-                            attemptsLeft--;
                             Console.CursorVisible = false;
-                            InvalidInputHandling.IncorrectNameOrPin(attemptsLeft, "\n\t            Incorrect pin.");
+                            InvalidInputHandling.IncorrectNameOrPin(username, "\n\t            Incorrect pin.");
                         }
-                    } while (attemptsLeft != 0 && !validPin);
-                } while (invalidInputAmount && attemptsLeft != 0);
+                    } while (!InvalidInputHandling.IsLockedOut(username) && !validPin);
+                } while (invalidInputAmount && !InvalidInputHandling.IsLockedOut(username));
             }
         }
 

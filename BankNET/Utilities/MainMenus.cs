@@ -16,7 +16,6 @@ namespace BankNET.Utilities
         internal static void WelcomeScreenMenu(BankContext context)
         {
             bool tryAgainLogin = true;
-            int loginAttempts = 3;
 
             while (tryAgainLogin)
             {
@@ -101,18 +100,18 @@ namespace BankNET.Utilities
                     {
                         // Login user with username and pin. Returns username. Or if too many failed login attempts, print that user is locked out.
                         case 0:
+                            // Calls log in function for user to log in
+                            string username = LogInLogOut.LogIn(context);
                             // If user is locked out, the following will be printed
-                            if (InvalidInputHandling.IsLockedOut())
+                            if (InvalidInputHandling.IsLockedOut(username))
                             {
                                 MenuUI.ClearAndPrintFooter();
                                 Console.WriteLine($"\n\t    You are temporarily locked out.");
                                 Console.WriteLine("\n\t      Try again in a few minutes.");
                                 Thread.Sleep(2000);
                             }
-                            // Calls log in function for user to log in
-                            string username = LogInLogOut.LogIn(context, loginAttempts);
                             // Sends user to correct menu
-                            if (username == "admin")
+                            else if (username == "admin")
                             {
                                 MainMenus.AdminMenu(context, username);
                             }
@@ -143,7 +142,7 @@ namespace BankNET.Utilities
             bool runMenu = true;
 
             // Runs menu as long as user is not locked out or chooses to log out.
-            while (runMenu && !InvalidInputHandling.IsLockedOut())
+            while (runMenu && !InvalidInputHandling.IsLockedOut(username))
             {
                 int selectedOption = 0;
 
@@ -283,7 +282,7 @@ namespace BankNET.Utilities
             // Key variable for navigating menu with arrow keys.
             ConsoleKeyInfo key;
 
-            while (runMenu && !InvalidInputHandling.IsLockedOut())
+            while (runMenu && !InvalidInputHandling.IsLockedOut(adminName))
             {
                 int selectedOption = 0;
 

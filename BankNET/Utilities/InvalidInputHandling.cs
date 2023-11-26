@@ -13,7 +13,7 @@ namespace BankNET.Utilities
         static DateTime lockoutTime;
 
         // Method for displaying failed input and then locking user out. Counter is outside used together with calling the method.
-        internal static void IncorrectNameOrPin(string username,int attemptsLeft, string pinFailMessage, string lockedOutMessage)
+        internal static void IncorrectNameOrPin(string username, string pinFailMessage)
         {
             MenuUI.ClearAndPrintFooter();
             if (LogInLogOut.userLogInAttempts[username] == 1)
@@ -28,16 +28,11 @@ namespace BankNET.Utilities
                 Console.WriteLine("\n\t       You have 1 attempt left.");
                 Thread.Sleep(2000);
             }
-            // After third failed attempt will call LockOutUser to lock out user.
-            else if (attemptsLeft == 0) 
-            {
-                LockOutUser(3);
-            }
             else
             {
                 // After third failed attempt LockOutUser will be called to lock out user.
                 int lockOutMinutes = 3;
-                LockOutUser(username, lockOutMinutes, lockedOutMessage);
+                LockOutUser(username, lockOutMinutes);
 
                 // Resets the attempts
                 LogInLogOut.userLogInAttempts[username] = 0;
@@ -45,7 +40,7 @@ namespace BankNET.Utilities
         }
 
         // Locks user out from the moment this method is called and add (int minutes) to the time ate the moment. 
-        internal static void LockOutUser(string username, int lockOutMinutes, string lockedOutMessage)
+        internal static void LockOutUser(string username, int lockOutMinutes)
         {
             // Adds 3 minutes from now where the user is locked out
             DateTime lockoutTime = DateTime.Now.AddMinutes(lockOutMinutes);
@@ -53,7 +48,7 @@ namespace BankNET.Utilities
             // Assigns the lockouttime to the specific username
             LogInLogOut.userLockOutTime[username] = lockoutTime;
 
-            Console.WriteLine($"\n\t{lockedOutMessage}");
+            Console.WriteLine("\n\t    Too many incorrect attempts.\"");
             Console.WriteLine($"\n\t User {username} is temporarily locked out.");
             Thread.Sleep(2000);
             return;

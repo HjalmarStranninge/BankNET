@@ -16,10 +16,11 @@ namespace BankNET.Utilities
         internal static Dictionary<string, DateTime> userLockOutTime = new Dictionary<string, DateTime>();
       
         // Method for login to check if valid login credentials, and redirects to menu if login accepted
-        internal static string LogIn(BankContext context, int loginAttepmts)
+        internal static string LogIn(BankContext context)
         {
             bool loginSuccesful = false;
-            while (!loginSuccesful && !InvalidInputHandling.IsLockedOut())
+            int numberOfTries = 1;
+            while (!loginSuccesful)
             {
                 MenuUI.ClearAndPrintFooter();
                 Console.CursorVisible = true;
@@ -29,6 +30,7 @@ namespace BankNET.Utilities
                 string username = Console.ReadLine();
                 Console.CursorVisible = false;
                 Console.Beep();
+                userLogInAttempts.Add(username, numberOfTries);
 
                 if (username.Length != 0)
                 {
@@ -44,15 +46,15 @@ namespace BankNET.Utilities
                     Console.Beep();
 
                     // Returns username if everything checks out.
-                    if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut())
+                    if (validUsernameAndPin && !InvalidInputHandling.IsLockedOut(username))
                     {
                         Console.WriteLine("Login successful!");
                         return username;
                     }
                     else
                     {
-                        loginAttepmts--;
-                        InvalidInputHandling.IncorrectNameOrPin(loginAttepmts, "\n\t      Invalid username and/or pin.");
+                        InvalidInputHandling.IncorrectNameOrPin(username, "\n\t      Invalid username and/or pin.");
+                        numberOfTries++;
                     }
                 }
                 // If user just presses enter without writing anything after "Enter username: " user returns to start page

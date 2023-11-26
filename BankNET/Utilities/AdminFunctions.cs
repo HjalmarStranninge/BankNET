@@ -117,7 +117,7 @@ namespace BankNET.Utilities
         {
             ConsoleKeyInfo key;
             bool runMenu = true;
-            while (runMenu && !InvalidInputHandling.IsLockedOut())
+            while (runMenu && !InvalidInputHandling.IsLockedOut(adminName))
             {
                 int selectedOption = 0;
 
@@ -195,9 +195,7 @@ namespace BankNET.Utilities
 
         // Method for showing user pin after confirming with admin pin.
         private static void ShowPin(BankContext context, string userSelect, string adminName, List<Account> userAccounts)
-        {
-            // Declare variable to limit number of attempts admin can enter incorrect pin until lock out
-            int attemptsLeft = 3;
+        { 
             do
             {
                 Console.Write("\nPlease enter admin pin to view user pin: ");
@@ -226,10 +224,9 @@ namespace BankNET.Utilities
                 }
                 else
                 {
-                    attemptsLeft--;
-                    InvalidInputHandling.IncorrectNameOrPin(attemptsLeft, "\n\t            Incorrect pin.");
+                    InvalidInputHandling.IncorrectNameOrPin(adminName, "\n\t            Incorrect pin.");
                 }
-            } while (!validAdminPin && !InvalidInputHandling.IsLockedOut());
+            } while (!validAdminPin && !InvalidInputHandling.IsLockedOut(adminName));
         }
 
         //Method for creating user
@@ -339,7 +336,7 @@ namespace BankNET.Utilities
                     else
                     {
                         attemptsLeft--;
-                        InvalidInputHandling.IncorrectNameOrPin(attemptsLeft, "\n\t            Incorrect pin.");
+                        InvalidInputHandling.IncorrectNameOrPin(adminName, "\n\t            Incorrect pin.");
                     }
                 }
 
@@ -349,7 +346,7 @@ namespace BankNET.Utilities
                     Console.WriteLine($"\n\t     Admin user cannot be deleted.");
                     Thread.Sleep(2000);
                 }
-            } while (!validAdminPin && !InvalidInputHandling.IsLockedOut()) ;
+            } while (!validAdminPin && !InvalidInputHandling.IsLockedOut(adminName)) ;
         }
 
         // Checks if 'admin' user exists, if not, creates one.
